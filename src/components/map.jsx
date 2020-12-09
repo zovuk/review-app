@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
+import { theKey } from './apiKey';
 // import { render } from 'react-dom';
-
+console.log(theKey);
 class Map extends Component {
   constructor(props) {
     super(props);
@@ -20,7 +21,7 @@ class Map extends Component {
     if (!window.google) {
       var s = document.createElement('script');
       s.type = 'text/javascript';
-      s.src = `https://maps.google.com/maps/api/js?key=AIzaSyDS3xXvWfZ3CuoKqOZhvCvGe-U1GxSIA7s`;
+      s.src = `https://maps.google.com/maps/api/js?key=${theKey}`;
       var x = document.getElementsByTagName('script')[0];
       x.parentNode.insertBefore(s, x);
       // Below is important.
