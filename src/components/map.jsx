@@ -34,7 +34,13 @@ class Map extends Component {
   }
 
   render() {
-    return <div style={{ width: '100%', height: '98vh' }} id={this.props.id} />;
+    return (
+      <div
+        className="card border-dark m-2"
+        style={{ width: '100%', height: '98vh' }}
+        id={this.props.id}
+      />
+    );
   }
 }
 
