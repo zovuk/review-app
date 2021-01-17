@@ -1,39 +1,39 @@
 import React, { Component } from 'react';
 import Map from './components/map';
 import List from './components/restaurantsList';
-// import { markers } from './components/markers';
+// import Marker from './components/markers';
+import { options } from './components/options';
 import './App.css';
+// import { restaurants } from './components/localRestaurants';
 
+let markers = [];
 class App extends Component {
-  state = { userPosition: { lat: 41.0082, lng: 28.9784 } };
+  // state = { userPosition: { lat: 45.17, lng: 17.85 } };
 
-  getUserPosition() {
-    // getting user location
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (pos) => {
-          this.setState({
-            userPosition: {
-              lat: pos.coords.latitude,
-              lng: pos.coords.longitude,
-            },
-          });
-        },
-        () => {
-          return alert(
-            'Location service is off. Please enable location service!'
-          );
-        }
-      );
-    }
+  componentDidMount() {
+    console.log('componentDidMount');
+    // markers.length === 0
+    //   ? console.log('markers prazni')
+    //   : console.log('ima markera');
+    // restaurants.map((e) => console.log(e.location));
+    // markers.map((e) => e.setMap(window.myMaps));
+    // markers[0].setMap(window.myMaps);
   }
 
-  setUserMarker() {
-    new window.google.maps.Marker({
-      position: this.state.userPosition,
-      map: window.myMap,
-      title: 'You are here!',
+  // Add Marker in markers array //////////////////////////////////////////
+  addMarker(position, icon, title) {
+    const marker = new window.google.maps.Marker({
+      position: position,
+      icon: {
+        url: icon,
+        scaledSize: new window.google.maps.Size(45, 45),
+        labelOrigin: new window.google.maps.Point(20, 13),
+      },
+      // map: window.myMap,
+      title: title,
     });
+    markers.push(marker);
+    console.log('3 - addMarker()');
   }
 
   render() {
@@ -44,14 +44,19 @@ class App extends Component {
             <Map
               id="myMap"
               options={{
-                center: this.getUserPosition(),
+                center: { lat: 45.17, lng: 17.85 },
                 zoom: 15,
               }}
               onMapLoad={(map) => {
-                // set map position at user location
-                map.setCenter(this.state.userPosition);
-                // set user Marker on the map
-                this.setUserMarker();
+                // set map on default position ///////////////////////
+                console.log(options.defaultMapCenter);
+                map.setCenter(options.defaultMapCenter);
+
+                // Add all MArkers on the Map ///////////////////////////////
+                // markers.map((e) => {
+                //   e.setMap(map);
+                //   console.log('4 - markers.map()');
+                // });
               }}
             />
           </div>

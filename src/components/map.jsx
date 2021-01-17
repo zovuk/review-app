@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import { theKey } from './apiKey';
 // import { render } from 'react-dom';
-console.log(theKey);
 class Map extends Component {
   constructor(props) {
     super(props);
@@ -13,8 +12,38 @@ class Map extends Component {
       document.getElementById(this.props.id),
       this.props.options
     );
-    window.myMap = map;
     this.props.onMapLoad(map);
+    // window.myMaps = map;
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          map.setCenter({
+            lat: pos.coords.latitude,
+            lng: pos.coords.longitude,
+          });
+          console.log('map.setCenter - component map.jsx');
+          new window.google.maps.Marker({
+            position: {
+              lat: pos.coords.latitude,
+              lng: pos.coords.longitude,
+            },
+            map,
+            icon: {
+              url: 'http://maps.google.com/mapfiles/kml/paddle/red-stars.png',
+              scaledSize: new window.google.maps.Size(45, 45),
+              labelOrigin: new window.google.maps.Point(20, 13),
+            },
+            title: 'You are here!',
+          });
+          console.log('user marker');
+        },
+        () => {
+          return alert(
+            'Location service is off. Please enable location service!'
+          );
+        }
+      );
+    }
   }
 
   componentDidMount() {

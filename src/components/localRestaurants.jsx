@@ -1,4 +1,3 @@
-// import { Component } from 'react';
 import LocalList from '../data/sample.json';
 
 const restaurants = LocalList.results.map((items) => extract(items));
@@ -22,20 +21,4 @@ function extract(items) {
   };
 }
 
-// class LocalRestaurants extends Component {
-// state = {  }
-//   render() {
-//     return restaurants;
-//   (<div className="mt-2">
-//     {' '}
-//     {restaurants.map((e) => (
-//       <div className="card bg-warning mt-1" key={e.id}>
-//         {e.name}
-//       </div>
-//     ))}
-//   </div>)
-//   }
-// }
-
-// export default LocalRestaurants;
 export { restaurants };

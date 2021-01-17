@@ -1,7 +1,16 @@
-const marker = new window.google.maps.Marker({
-  position: { lat: 51.04696585201921, lng: 3.721826640329571 },
-  map: window.myMap,
-  title: 'Malo Dalje!',
-});
+import React, { Component } from 'react';
 
-export { marker };
+let userIcon = {
+  url: 'http://maps.google.com/mapfiles/kml/paddle/red-stars.png',
+  scaledSize: new window.myMap.Size(45, 45),
+  labelOrigin: new window.google.maps.Point(20, 13),
+};
+class Marker extends Component {
+  state = {};
+
+  render() {
+    return userIcon;
+  }
+}
+
+export default Marker;
