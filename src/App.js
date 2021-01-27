@@ -4,37 +4,48 @@ import List from './components/restaurantsList';
 // import Marker from './components/markers';
 import { options } from './components/options';
 import './App.css';
-// import { restaurants } from './components/localRestaurants';
 
-let markers = [];
+// let markers = [];
 class App extends Component {
-  // state = { userPosition: { lat: 45.17, lng: 17.85 } };
+  state = {
+    list: [],
+    bounds: {},
+  };
 
-  componentDidMount() {
-    console.log('componentDidMount');
-    // markers.length === 0
-    //   ? console.log('markers prazni')
-    //   : console.log('ima markera');
-    // restaurants.map((e) => console.log(e.location));
-    // markers.map((e) => e.setMap(window.myMaps));
-    // markers[0].setMap(window.myMaps);
-  }
+  fetchList = (results) => {
+    const fetchedRestaurantList = JSON.stringify(results);
+    this.setState({ list: JSON.parse(fetchedRestaurantList) });
+  };
+
+  onBoundsChange = (bounds) => {
+    this.setState({ bounds: bounds });
+  };
+
+  // componentDidMount() {
+  // console.log('componentDidMount');
+  // markers.length === 0
+  //   ? console.log('markers prazni')
+  //   : console.log('ima markera');
+  // restaurants.map((e) => console.log(e.location));
+  // markers.map((e) => e.setMap(window.myMaps));
+  // markers[0].setMap(window.myMaps);
+  // }
 
   // Add Marker in markers array //////////////////////////////////////////
-  addMarker(position, icon, title) {
-    const marker = new window.google.maps.Marker({
-      position: position,
-      icon: {
-        url: icon,
-        scaledSize: new window.google.maps.Size(45, 45),
-        labelOrigin: new window.google.maps.Point(20, 13),
-      },
-      // map: window.myMap,
-      title: title,
-    });
-    markers.push(marker);
-    console.log('3 - addMarker()');
-  }
+  // addMarker(position, icon, title) {
+  //   const marker = new window.google.maps.Marker({
+  //     position: position,
+  //     icon: {
+  //       url: icon,
+  //       scaledSize: new window.google.maps.Size(45, 45),
+  //       labelOrigin: new window.google.maps.Point(20, 13),
+  //     },
+  //     // map: window.myMap,
+  //     title: title,
+  //   });
+  //   markers.push(marker);
+  //   // console.log('3 - addMarker()');
+  // }
 
   render() {
     return (
@@ -44,12 +55,10 @@ class App extends Component {
             <Map
               id="myMap"
               options={{
-                center: { lat: 45.17, lng: 17.85 },
+                center: options.defaultMapCenter,
                 zoom: 15,
               }}
               onMapLoad={(map) => {
-                // set map on default position ///////////////////////
-                console.log(options.defaultMapCenter);
                 map.setCenter(options.defaultMapCenter);
 
                 // Add all MArkers on the Map ///////////////////////////////
@@ -58,10 +67,15 @@ class App extends Component {
                 //   console.log('4 - markers.map()');
                 // });
               }}
+              onFetch={this.fetchList}
+              onBoundsChange={this.onBoundsChange}
             />
           </div>
           <div className="col-sm-4">
-            <List />
+            <List
+              newFetchedList={this.state.list}
+              newBounds={this.state.bounds}
+            />
           </div>
         </div>
       </div>

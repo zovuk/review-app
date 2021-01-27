@@ -1,19 +1,17 @@
 import React, { Component } from 'react';
 import { theKey } from './apiKey';
-// import { render } from 'react-dom';
-class Map extends Component {
-  constructor(props) {
-    super(props);
-    this.onScriptLoad = this.onScriptLoad.bind(this);
-  }
 
-  onScriptLoad() {
-    const map = new window.google.maps.Map(
+let map;
+class Map extends Component {
+  onScriptLoad = () => {
+    map = new window.google.maps.Map(
       document.getElementById(this.props.id),
       this.props.options
     );
     this.props.onMapLoad(map);
-    // window.myMaps = map;
+    window.myMaps = map;
+
+    // ########## Get user location ##########
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (pos) => {
@@ -21,7 +19,6 @@ class Map extends Component {
             lat: pos.coords.latitude,
             lng: pos.coords.longitude,
           });
-          console.log('map.setCenter - component map.jsx');
           new window.google.maps.Marker({
             position: {
               lat: pos.coords.latitude,
@@ -35,7 +32,6 @@ class Map extends Component {
             },
             title: 'You are here!',
           });
-          console.log('user marker');
         },
         () => {
           return alert(
@@ -44,17 +40,43 @@ class Map extends Component {
         }
       );
     }
-  }
+
+    // ########## Get bounds with idle listener ##########
+    window.google.maps.event.addListener(map, 'idle', () => {
+      const neBounds = map.getBounds().getNorthEast();
+      const swBounds = map.getBounds().getSouthWest();
+      const sw = { lat: swBounds.lat(), lng: swBounds.lng() };
+      const ne = { lat: neBounds.lat(), lng: neBounds.lng() };
+      this.props.onBoundsChange({ sw, ne });
+
+      // ########## Get restaurants from google places Nearby search ##########
+      const service = new window.google.maps.places.PlacesService(
+        window.myMaps
+      );
+      service.nearbySearch(
+        {
+          bounds: window.myMaps.getBounds(),
+          type: ['restaurant'],
+        },
+        (results, status) => {
+          if (status === window.google.maps.places.PlacesServiceStatus.OK) {
+            this.props.onFetch(results);
+          }
+        }
+      );
+    });
+  };
 
   componentDidMount() {
     if (!window.google) {
       var s = document.createElement('script');
       s.type = 'text/javascript';
-      s.src = `https://maps.google.com/maps/api/js?key=${theKey}`;
+      s.src = `https://maps.google.com/maps/api/js?key=${theKey}&libraries=places`;
+      s.async = true;
       var x = document.getElementsByTagName('script')[0];
       x.parentNode.insertBefore(s, x);
       // Below is important.
-      //We cannot access google.maps until it's finished loading
+      // We cannot access google.maps until it's finished loading
       s.addEventListener('load', (e) => {
         this.onScriptLoad();
       });

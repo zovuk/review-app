@@ -1,0 +1,17 @@
+[
+  {
+    "geometry": {
+      "location": { "lat": 45.1826818, "lng": 17.8642299 }
+    },
+    "name": "Ugostiteljstvo Gavran - Restoran Bonsai",
+    "place_id": "ChIJDfhjxNC9XUcRl4qeLeCzgNA",
+    "price_level": 2,
+    "rating": 4.3,
+    "reference": "ChIJDfhjxNC9XUcRl4qeLeCzgNA",
+    "scope": "GOOGLE",
+    "types": ["restaurant", "food", "point_of_interest", "establishment"],
+    "user_ratings_total": 122,
+    "vicinity": "Ilije Martinovića 33, Stari Slatnik",
+    "html_attributions": []
+  }
+]
