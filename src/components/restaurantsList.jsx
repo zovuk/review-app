@@ -7,20 +7,22 @@ const defaultlList = JSON.parse(list);
 class List extends Component {
   state = { restaurants: defaultlList };
 
-  componentDidUpdate(a, b, c) {
+  componentDidUpdate(a) {
+    // ########## Filter only reataurants inside boundaries ##########
+    const nowList = [
+      ...defaultlList.filter(
+        (e) =>
+          e.geometry.location.lng < this.props.newBounds.ne.lng &&
+          e.geometry.location.lng > this.props.newBounds.sw.lng &&
+          e.geometry.location.lat < this.props.newBounds.ne.lat &&
+          e.geometry.location.lat > this.props.newBounds.sw.lat
+      ),
+    ];
     // ##########  Check if bounds are changed ##########
     if (this.props.newBounds !== a.newBounds) {
       // ########## If yes start with local list ##########
       this.setState({
-        restaurants: [
-          ...defaultlList.filter(
-            (e) =>
-              e.geometry.location.lng < this.props.newBounds.ne.lng &&
-              e.geometry.location.lng > this.props.newBounds.sw.lng &&
-              e.geometry.location.lat < this.props.newBounds.ne.lat &&
-              e.geometry.location.lat > this.props.newBounds.sw.lat
-          ),
-        ],
+        restaurants: nowList,
       });
     }
 
@@ -28,22 +30,9 @@ class List extends Component {
     if (this.props.newFetchedList !== a.newFetchedList) {
       // ########## If yes add fetched list ##########
       this.setState({
-        restaurants: [
-          ...defaultlList.filter(
-            (e) =>
-              e.geometry.location.lng < this.props.newBounds.ne.lng &&
-              e.geometry.location.lng > this.props.newBounds.sw.lng &&
-              e.geometry.location.lat < this.props.newBounds.ne.lat &&
-              e.geometry.location.lat > this.props.newBounds.sw.lat
-          ),
-          ...this.props.newFetchedList,
-        ],
+        restaurants: [...nowList, ...this.props.newFetchedList],
       });
     }
-
-    // ########## Filter only locations inside the boundaries ##########
-
-    // this.setState({ restaurants: tempList });
   }
 
   render() {
