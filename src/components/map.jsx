@@ -1,8 +1,53 @@
 import React, { Component } from 'react';
 import { theKey } from './apiKey';
+import { options } from './options';
 
 let map;
+let markers = [];
 class Map extends Component {
+  componentDidMount() {
+    if (!window.google) {
+      var s = document.createElement('script');
+      s.type = 'text/javascript';
+      s.src = `https://maps.google.com/maps/api/js?key=${theKey}&libraries=places`;
+      s.async = true;
+      var x = document.getElementsByTagName('script')[0];
+      x.parentNode.insertBefore(s, x);
+      // Below is important.
+      // We cannot access google.maps until it's finished loading
+      s.addEventListener('load', (e) => {
+        this.onScriptLoad();
+      });
+    } else {
+      this.onScriptLoad();
+    }
+  }
+
+  componentDidUpdate(a, b) {
+    if (a.restaurants !== this.props.restaurants) {
+      markers.map((e) => e.setMap(null));
+      markers = [];
+      this.props.restaurants.map((e) =>
+        this.addMarker(e.geometry.location, e.name)
+      );
+      console.log(markers);
+      markers.map((e) => e.setMap(map));
+    }
+  }
+
+  addMarker = (location, name) => {
+    const marker = new window.google.maps.Marker({
+      position: location,
+      icon: {
+        url: options.restaurantIcon.url,
+        scaledSize: new window.google.maps.Size(45, 45),
+        labelOrigin: new window.google.maps.Point(20, 13),
+      },
+      title: name,
+    });
+    markers.push(marker);
+  };
+
   onScriptLoad = () => {
     map = new window.google.maps.Map(
       document.getElementById(this.props.id),
@@ -26,7 +71,7 @@ class Map extends Component {
             },
             map,
             icon: {
-              url: 'http://maps.google.com/mapfiles/kml/paddle/red-stars.png',
+              url: options.userIcon.url,
               scaledSize: new window.google.maps.Size(45, 45),
               labelOrigin: new window.google.maps.Point(20, 13),
             },
@@ -66,24 +111,6 @@ class Map extends Component {
       );
     });
   };
-
-  componentDidMount() {
-    if (!window.google) {
-      var s = document.createElement('script');
-      s.type = 'text/javascript';
-      s.src = `https://maps.google.com/maps/api/js?key=${theKey}&libraries=places`;
-      s.async = true;
-      var x = document.getElementsByTagName('script')[0];
-      x.parentNode.insertBefore(s, x);
-      // Below is important.
-      // We cannot access google.maps until it's finished loading
-      s.addEventListener('load', (e) => {
-        this.onScriptLoad();
-      });
-    } else {
-      this.onScriptLoad();
-    }
-  }
 
   render() {
     return (
