@@ -7,8 +7,6 @@ import './App.css';
 class App extends Component {
   state = {
     fetchedList: [],
-    bounds: {},
-    restaurants: [],
   };
 
   fetchList = (results) => {

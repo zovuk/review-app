@@ -24,24 +24,23 @@ class Map extends Component {
   }
 
   componentDidUpdate(a, b) {
-    if (a.restaurants !== this.props.restaurants) {
+    if (this.props.restaurants && a.restaurants !== this.props.restaurants) {
       markers.map((e) => e.setMap(null));
       markers = [];
       this.props.restaurants.map((e) =>
-        this.addMarker(e.geometry.location, e.name)
+        this.addMarker(e.geometry.location, e.name, e.label)
       );
-      console.log(markers);
       markers.map((e) => e.setMap(map));
+      // markers.map((e) => e.setAnimation(window.google.maps.Animation.BOUNCE));
     }
   }
 
-  addMarker = (location, name) => {
+  addMarker = (location, name, label) => {
     const marker = new window.google.maps.Marker({
       position: location,
       icon: {
-        url: options.restaurantIcon.url,
+        url: `${options.restaurantIcon.url}${label}|33338B|FFF`,
         scaledSize: new window.google.maps.Size(45, 45),
-        labelOrigin: new window.google.maps.Point(20, 13),
       },
       title: name,
     });
@@ -70,10 +69,10 @@ class Map extends Component {
               lng: pos.coords.longitude,
             },
             map,
+            animation: window.google.maps.Animation.DROP,
             icon: {
               url: options.userIcon.url,
-              scaledSize: new window.google.maps.Size(45, 45),
-              labelOrigin: new window.google.maps.Point(20, 13),
+              scaledSize: new window.google.maps.Size(50, 50),
             },
             title: 'You are here!',
           });
