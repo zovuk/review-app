@@ -7,7 +7,11 @@ const options = {
     url:
       'http://chart.apis.google.com/chart?chst=d_map_pin_letter_withshadow&chld=',
   },
-  defaultMapCenter: { lat: 45.17, lng: 17.85 },
+  defaultOptions: {
+    center: { lat: 45.17, lng: 17.85 },
+    zoom: 15,
+    disableDefaultUI: true,
+  },
 };
 
 export { options };

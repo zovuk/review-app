@@ -7,18 +7,19 @@ let onlyOnce = 1;
 const labels = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 let labelIndex = 0;
 class List extends Component {
+  state = { listItemBg: 'bg-light' };
   // ########## Filter only reataurants inside boundaries ##########
   filterIt = () => {
-    let ppp = [...defaultlList, ...this.props.newFetchedList].filter(
+    let filteredList = [...defaultlList, ...this.props.newFetchedList].filter(
       (e) =>
         e.geometry.location.lng < this.props.newBounds.ne.lng &&
         e.geometry.location.lng > this.props.newBounds.sw.lng &&
         e.geometry.location.lat < this.props.newBounds.ne.lat &&
         e.geometry.location.lat > this.props.newBounds.sw.lat
     );
-    ppp.map((e) => (e.label = labels[labelIndex++ % labels.length]));
+    filteredList.map((e) => (e.label = labels[labelIndex++ % labels.length]));
     labelIndex = 0;
-    this.props.onListChange(ppp);
+    this.props.filteredList(filteredList);
   };
 
   componentDidUpdate(a) {
@@ -34,13 +35,55 @@ class List extends Component {
     }
   }
 
+  handleMouseOver = (e) => {
+    const item = document.getElementById(e.target.id);
+
+    item.classList.remove('bg-light');
+    item.classList.add('bg-warning', 'border-danger');
+  };
+
+  handleMouseOut = (e) => {
+    const item = document.getElementById(e.target.id);
+
+    item.classList.remove('bg-warning', 'border-danger');
+    item.classList.add('bg-light');
+  };
+
   render() {
     return (
-      <div className="mt-2">
+      <div id="list" className="mt-2">
         {this.props.restaurants &&
           this.props.restaurants.map((e) => (
-            <div className="card bg-warning mt-1 pl-1" key={e.place_id}>
-              {e.label} {e.name}
+            <div
+              onMouseOver={(e) => {
+                this.props.handleMouseOver(e);
+                this.handleMouseOver(e);
+              }}
+              onMouseOut={(e) => {
+                this.props.handleMouseOut(e);
+                this.handleMouseOut(e);
+              }}
+              onClick={this.props.handleClick}
+              className={'slowTransition card mt-1 pl-1 bg-light'}
+              key={e.place_id}
+              id={e.place_id}
+            >
+              <div className="notClickable row">
+                <div className="notClickable label rounded-left">{e.label}</div>
+                <div className="notClickable col-10 h6 text-truncate">
+                  "{e.name}"
+                </div>
+              </div>
+              {e.rating && (
+                <div className="notClickable text-secondary">
+                  {e.rating}
+                  <span className="text-danger">&#9733;</span> (
+                  {e.user_ratings_total})
+                </div>
+              )}
+              {!e.rating && (
+                <div className="notClickable text-secondary">No Ratings</div>
+              )}
             </div>
           ))}
       </div>

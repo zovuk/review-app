@@ -1,12 +1,14 @@
 import React, { Component } from 'react';
 import Map from './components/map';
 import List from './components/restaurantsList';
-import { options } from './components/options';
+import Button from './components/seeListButton';
+import Restaurant from './components/restaurant';
 import './App.css';
 
 class App extends Component {
   state = {
     fetchedList: [],
+    idleListener: true,
   };
 
   fetchList = (results) => {
@@ -18,37 +20,63 @@ class App extends Component {
     this.setState({ bounds: bounds });
   };
 
-  onListChange = (filteredList) => {
+  filteredList = (filteredList) => {
     this.setState({ restaurants: filteredList });
+  };
+
+  handleMouseOver = (event) => {
+    this.setState({ selectedRestaurantID: event.target.id });
+  };
+
+  handleMouseOut = (event) => {
+    this.setState({ selectedRestaurantID: undefined });
+  };
+
+  handleClick = () => {
+    this.setState({
+      idleListener: this.state.idleListener ? false : true,
+    });
   };
 
   render() {
     return (
       <div className="container">
-        <div className="row">
-          <div className="col-sm-8">
+        <div className="row position-relative">
+          <div className={this.state.idleListener ? 'col-md-8' : 'col-md-4'}>
             <Map
               id="myMap"
-              options={{
-                center: options.defaultMapCenter,
-                zoom: 15,
-              }}
-              onMapLoad={(map) => {
-                map.setCenter(options.defaultMapCenter);
-              }}
+              restaurants={this.state.restaurants}
+              newBounds={this.state.bounds}
+              selectedRestaurantID={this.state.selectedRestaurantID}
+              idleListener={this.state.idleListener}
               onFetch={this.fetchList}
               onBoundsChange={this.onBoundsChange}
-              restaurants={this.state.restaurants}
-              newBounds={this.state.bounds}
             />
+            {!this.state.idleListener && (
+              <Button handleClick={this.handleClick}></Button>
+            )}
           </div>
-          <div className="col-sm-4">
-            <List
-              newFetchedList={this.state.fetchedList}
-              newBounds={this.state.bounds}
-              onListChange={this.onListChange}
-              restaurants={this.state.restaurants}
-            />
+
+          <div
+            className={this.state.idleListener ? 'scroll col-md-4' : 'col-md-8'}
+          >
+            {this.state.idleListener && (
+              <List
+                // className={'list'}
+                newFetchedList={this.state.fetchedList}
+                newBounds={this.state.bounds}
+                filteredList={this.filteredList}
+                restaurants={this.state.restaurants}
+                handleMouseOver={this.handleMouseOver}
+                handleMouseOut={this.handleMouseOut}
+                handleClick={this.handleClick}
+              />
+            )}
+            {!this.state.idleListener && (
+              <Restaurant
+                selectedRestaurantID={this.state.selectedRestaurantID}
+              />
+            )}
           </div>
         </div>
       </div>

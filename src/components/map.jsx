@@ -23,37 +23,66 @@ class Map extends Component {
     }
   }
 
-  componentDidUpdate(a, b) {
-    if (this.props.restaurants && a.restaurants !== this.props.restaurants) {
+  componentDidUpdate(prevProps) {
+    // ########## Set all markers on the map ##########
+    if (
+      this.props.restaurants &&
+      prevProps.restaurants !== this.props.restaurants
+    ) {
       markers.map((e) => e.setMap(null));
       markers = [];
-      this.props.restaurants.map((e) =>
-        this.addMarker(e.geometry.location, e.name, e.label)
-      );
+      this.props.restaurants.map((e) => this.addMarker(e));
       markers.map((e) => e.setMap(map));
-      // markers.map((e) => e.setAnimation(window.google.maps.Animation.BOUNCE));
+    }
+
+    // ########## Make marker bounce on hover over restaurant on the list ##########
+    if (prevProps.selectedRestaurantID !== this.props.selectedRestaurantID) {
+      const id = this.props.selectedRestaurantID
+        ? this.props.selectedRestaurantID
+        : prevProps.selectedRestaurantID;
+      markers
+        .find((marker) => marker.id === id)
+        .setAnimation(
+          this.props.selectedRestaurantID
+            ? window.google.maps.Animation.BOUNCE
+            : window.google.maps.Animation.NONE
+        );
+    }
+
+    // ########## Set map center and zoom dinamicly ##########
+    if (prevProps.idleListener !== this.props.idleListener) {
+      if (!this.props.idleListener) {
+        map.setCenter(
+          this.props.restaurants.find(
+            (e) => e.place_id === this.props.selectedRestaurantID
+          ).geometry.location
+        );
+        map.setZoom(18);
+      } else {
+        map.setCenter(this.state.savedCenter);
+        map.setZoom(this.state.zoom);
+      }
     }
   }
 
-  addMarker = (location, name, label) => {
+  addMarker = (e) => {
     const marker = new window.google.maps.Marker({
-      position: location,
+      position: e.geometry.location,
       icon: {
-        url: `${options.restaurantIcon.url}${label}|33338B|FFF`,
+        url: `${options.restaurantIcon.url}${e.label}|33338B|FFF`,
         scaledSize: new window.google.maps.Size(45, 45),
       },
-      title: name,
+      title: e.name,
     });
+    marker.id = e.place_id;
     markers.push(marker);
   };
 
   onScriptLoad = () => {
     map = new window.google.maps.Map(
       document.getElementById(this.props.id),
-      this.props.options
+      options.defaultOptions
     );
-    this.props.onMapLoad(map);
-    window.myMaps = map;
 
     // ########## Get user location ##########
     if (navigator.geolocation) {
@@ -87,39 +116,46 @@ class Map extends Component {
 
     // ########## Get bounds with idle listener ##########
     window.google.maps.event.addListener(map, 'idle', () => {
-      const neBounds = map.getBounds().getNorthEast();
-      const swBounds = map.getBounds().getSouthWest();
-      const sw = { lat: swBounds.lat(), lng: swBounds.lng() };
-      const ne = { lat: neBounds.lat(), lng: neBounds.lng() };
-      this.props.onBoundsChange({ sw, ne });
+      if (this.props.idleListener) {
+        const neBounds = map.getBounds().getNorthEast();
+        const swBounds = map.getBounds().getSouthWest();
+        const sw = { lat: swBounds.lat(), lng: swBounds.lng() };
+        const ne = { lat: neBounds.lat(), lng: neBounds.lng() };
+        this.props.onBoundsChange({ sw, ne });
 
-      // ########## Get restaurants from google places Nearby search ##########
-      const service = new window.google.maps.places.PlacesService(
-        window.myMaps
-      );
-      service.nearbySearch(
-        {
-          bounds: window.myMaps.getBounds(),
-          type: ['restaurant'],
-        },
-        (results, status) => {
-          if (status === window.google.maps.places.PlacesServiceStatus.OK) {
-            this.props.onFetch(results);
+        // ########## Get center and zoom for returning on the list view ##########
+        this.setState({ savedCenter: map.getCenter(), zoom: map.getZoom() });
+
+        // ########## Get restaurants from google places Nearby search ##########
+        const service = new window.google.maps.places.PlacesService(map);
+        service.nearbySearch(
+          {
+            bounds: map.getBounds(),
+            type: ['restaurant'],
+          },
+          (results, status) => {
+            if (status === window.google.maps.places.PlacesServiceStatus.OK) {
+              this.props.onFetch(results);
+            }
           }
-        }
-      );
+        );
+      }
     });
   };
 
   render() {
     return (
-      <div
-        className="card border-dark m-2"
-        style={{ width: '100%', height: '98vh' }}
-        id={this.props.id}
-      />
+      <div>
+        <div
+          className="card border-dark mt-2"
+          style={{ width: '100%', paddingBottom: '100%' }}
+          id={this.props.id}
+          // map={this.props.getMap(map)}
+        />
+      </div>
     );
   }
 }
 
+export { map };
 export default Map;
