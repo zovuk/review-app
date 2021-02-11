@@ -2,13 +2,18 @@ import React, { Component } from 'react';
 import Map from './components/map';
 import List from './components/restaurantsList';
 import Button from './components/seeListButton';
+import NewRestaurant from './components/newRestaurant';
 import Restaurant from './components/restaurant';
+import Picture from './components/picture';
+// import FilterStars from './components/filterStars';
 import './App.css';
 
 class App extends Component {
   state = {
     fetchedList: [],
     idleListener: true,
+    addingRestaurant: false,
+    // newPlace: {},
   };
 
   fetchList = (results) => {
@@ -26,6 +31,11 @@ class App extends Component {
 
   handleMouseOver = (event) => {
     this.setState({ selectedRestaurantID: event.target.id });
+    this.setState({
+      selectedRestaurantCoors: this.state.restaurants.find(
+        (e) => e.place_id === event.target.id
+      ).geometry.location,
+    });
   };
 
   handleMouseOut = (event) => {
@@ -38,6 +48,17 @@ class App extends Component {
     });
   };
 
+  handleAddRestaurant = () => {
+    this.setState({
+      addingRestaurant: this.state.addingRestaurant ? false : true,
+    });
+  };
+
+  // addNewPlace = (a, b) => {
+  //   this.setObjectByPath([newPlace, a], b);
+  //   console.log(this.state.newPlace);
+  // };
+
   render() {
     return (
       <div className="container">
@@ -49,20 +70,43 @@ class App extends Component {
               newBounds={this.state.bounds}
               selectedRestaurantID={this.state.selectedRestaurantID}
               idleListener={this.state.idleListener}
+              addingRestaurant={this.state.addingRestaurant}
               onFetch={this.fetchList}
               onBoundsChange={this.onBoundsChange}
             />
             {!this.state.idleListener && (
               <Button handleClick={this.handleClick}></Button>
             )}
+            {!this.state.idleListener && (
+              <Picture
+                selectedRestaurantID={this.state.selectedRestaurantID}
+                selectedRestaurantCoors={this.state.selectedRestaurantCoors}
+              />
+            )}
           </div>
 
           <div
             className={this.state.idleListener ? 'scroll col-md-4' : 'col-md-8'}
           >
+            {/* {!this.state.addingRestaurant && (
+              <FilterStars
+                onMinChange={console.log('minimal')}
+                onMaxChange={console.log('maximal')}
+                minStars={1}
+                maxStars={3}
+                hidden={true}
+              />
+            )} */}
             {this.state.idleListener && (
+              <NewRestaurant
+                // idleListener={this.state.idleListener}
+                handleClick={this.handleAddRestaurant}
+                addingRestaurant={this.state.addingRestaurant}
+                // addNewPlace={this.addNewPlace}
+              ></NewRestaurant>
+            )}
+            {this.state.idleListener && !this.state.addingRestaurant && (
               <List
-                // className={'list'}
                 newFetchedList={this.state.fetchedList}
                 newBounds={this.state.bounds}
                 filteredList={this.filteredList}

@@ -2,14 +2,15 @@ import React, { Component } from 'react';
 import LocalList from '../data/sample.json';
 
 const list = JSON.stringify(LocalList);
-const defaultlList = JSON.parse(list);
+let defaultlList = JSON.parse(list);
 let onlyOnce = 1;
-const labels = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+const labels = 'AÄBCDEFGHIJKLMNOÖPQRSßTUVWXYZ123456789';
 let labelIndex = 0;
 class List extends Component {
   state = { listItemBg: 'bg-light' };
   // ########## Filter only reataurants inside boundaries ##########
   filterIt = () => {
+    console.log(defaultlList);
     let filteredList = [...defaultlList, ...this.props.newFetchedList].filter(
       (e) =>
         e.geometry.location.lng < this.props.newBounds.ne.lng &&
@@ -64,7 +65,9 @@ class List extends Component {
                 this.handleMouseOut(e);
               }}
               onClick={this.props.handleClick}
-              className={'slowTransition card mt-1 pl-1 bg-light'}
+              className={
+                'slowTransition card mt-1 pl-1 bg-light border-primary'
+              }
               key={e.place_id}
               id={e.place_id}
             >

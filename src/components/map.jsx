@@ -116,7 +116,7 @@ class Map extends Component {
 
     // ########## Get bounds with idle listener ##########
     window.google.maps.event.addListener(map, 'idle', () => {
-      if (this.props.idleListener) {
+      if (this.props.idleListener && !this.props.addingRestaurant) {
         const neBounds = map.getBounds().getNorthEast();
         const swBounds = map.getBounds().getSouthWest();
         const sw = { lat: swBounds.lat(), lng: swBounds.lng() };
@@ -147,7 +147,7 @@ class Map extends Component {
     return (
       <div>
         <div
-          className="card border-dark mt-2"
+          className="card border-primary mt-2"
           style={{ width: '100%', paddingBottom: '100%' }}
           id={this.props.id}
           // map={this.props.getMap(map)}

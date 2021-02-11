@@ -23,7 +23,6 @@ class Restaurant extends Component {
   callback = (results, status) => {
     if (status === window.google.maps.places.PlacesServiceStatus.OK) {
       this.setState({ place: JSON.parse(JSON.stringify(results)) });
-      console.log(this.state.place.reviews);
     }
   };
 
@@ -44,10 +43,9 @@ class Restaurant extends Component {
             <div className="notClickable text-secondary">No Ratings</div>
           )}
         </div>
-        {/* <Review review={this.state.place.reviews} /> */}
         {this.state.place.reviews &&
           this.state.place.reviews.map((review) => (
-            <div>
+            <div key={Math.random() * 10000000}>
               <div>{review.author_name}</div>
               {/* <div>{review.profile_photo_url}</div> */}
               {/* <div>{review.author_url}</div> */}
