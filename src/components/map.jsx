@@ -125,20 +125,6 @@ class Map extends Component {
 
         // ########## Get center and zoom for returning on the list view ##########
         this.setState({ savedCenter: map.getCenter(), zoom: map.getZoom() });
-
-        // ########## Get restaurants from google places Nearby search ##########
-        const service = new window.google.maps.places.PlacesService(map);
-        service.nearbySearch(
-          {
-            bounds: map.getBounds(),
-            type: ['restaurant'],
-          },
-          (results, status) => {
-            if (status === window.google.maps.places.PlacesServiceStatus.OK) {
-              this.props.onFetch(results);
-            }
-          }
-        );
       }
     });
   };
@@ -150,7 +136,6 @@ class Map extends Component {
           className="card border-primary mt-2"
           style={{ width: '100%', paddingBottom: '100%' }}
           id={this.props.id}
-          // map={this.props.getMap(map)}
         />
       </div>
     );

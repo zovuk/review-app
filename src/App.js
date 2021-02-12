@@ -10,15 +10,12 @@ import './App.css';
 
 class App extends Component {
   state = {
-    fetchedList: [],
     idleListener: true,
     addingRestaurant: false,
-    // newPlace: {},
-  };
-
-  fetchList = (results) => {
-    const fetchedRestaurantList = JSON.stringify(results);
-    this.setState({ fetchedList: JSON.parse(fetchedRestaurantList) });
+    restaurants: [],
+    bounds: {},
+    selectedRestaurantID: '',
+    selectedRestaurantCoors: {},
   };
 
   onBoundsChange = (bounds) => {
@@ -71,7 +68,6 @@ class App extends Component {
               selectedRestaurantID={this.state.selectedRestaurantID}
               idleListener={this.state.idleListener}
               addingRestaurant={this.state.addingRestaurant}
-              onFetch={this.fetchList}
               onBoundsChange={this.onBoundsChange}
             />
             {!this.state.idleListener && (
@@ -107,7 +103,6 @@ class App extends Component {
             )}
             {this.state.idleListener && !this.state.addingRestaurant && (
               <List
-                newFetchedList={this.state.fetchedList}
                 newBounds={this.state.bounds}
                 filteredList={this.filteredList}
                 restaurants={this.state.restaurants}

@@ -1,38 +1,46 @@
 import React, { Component } from 'react';
 import LocalList from '../data/sample.json';
+import { map } from './map';
 
 const list = JSON.stringify(LocalList);
 let defaultlList = JSON.parse(list);
-let onlyOnce = 1;
-const labels = 'AÄBCDEFGHIJKLMNOÖPQRSßTUVWXYZ123456789';
+const labels = 'ABCDEFGHIJKLMNOPQRSTUVWXYZÄÖß123456789';
 let labelIndex = 0;
 class List extends Component {
   state = { listItemBg: 'bg-light' };
-  // ########## Filter only reataurants inside boundaries ##########
-  filterIt = () => {
-    console.log(defaultlList);
-    let filteredList = [...defaultlList, ...this.props.newFetchedList].filter(
-      (e) =>
-        e.geometry.location.lng < this.props.newBounds.ne.lng &&
-        e.geometry.location.lng > this.props.newBounds.sw.lng &&
-        e.geometry.location.lat < this.props.newBounds.ne.lat &&
-        e.geometry.location.lat > this.props.newBounds.sw.lat
+  filterIt = (newBounds) => {
+    // ########## Get restaurants from google places Nearby search ##########
+    let restaurants = [];
+    const service = new window.google.maps.places.PlacesService(map);
+    service.nearbySearch(
+      {
+        bounds: map.getBounds(),
+        type: ['restaurant'],
+      },
+      (results, status) => {
+        restaurants = JSON.parse(JSON.stringify(results));
+
+        // ########## Filter only reataurants inside boundaries ##########
+        let filteredList = [...defaultlList, ...restaurants].filter(
+          (e) =>
+            e.geometry.location.lng < newBounds.ne.lng &&
+            e.geometry.location.lng > newBounds.sw.lng &&
+            e.geometry.location.lat < newBounds.ne.lat &&
+            e.geometry.location.lat > newBounds.sw.lat
+        );
+        filteredList.map(
+          (e) => (e.label = labels[labelIndex++ % labels.length])
+        );
+        labelIndex = 0;
+        this.props.filteredList(filteredList);
+      }
     );
-    filteredList.map((e) => (e.label = labels[labelIndex++ % labels.length]));
-    labelIndex = 0;
-    this.props.filteredList(filteredList);
   };
 
   componentDidUpdate(a) {
-    // ########## First call - only once ##########
-    if (this.props.newFetchedList !== a.newFetchedList && onlyOnce === 1) {
-      this.filterIt();
-      onlyOnce += 1;
-    }
-
     // ##########  Check if bounds are changed ##########
     if (this.props.newBounds !== a.newBounds) {
-      this.filterIt();
+      this.filterIt(this.props.newBounds);
     }
   }
 
