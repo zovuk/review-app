@@ -8,13 +8,15 @@ const labels = 'ABCDEFGHIJKLMNOPQRSTUVWXYZÄÖß123456789';
 let labelIndex = 0;
 class List extends Component {
   state = { listItemBg: 'bg-light' };
+
+  // ########## Filter-out all non-visible restaurants ##########
   filterIt = (newBounds) => {
     // ########## Get restaurants from google places Nearby search ##########
     let restaurants = [];
     const service = new window.google.maps.places.PlacesService(map);
     service.nearbySearch(
       {
-        bounds: map.getBounds(),
+        bounds: newBounds,
         type: ['restaurant'],
       },
       (results, status) => {
@@ -23,10 +25,10 @@ class List extends Component {
         // ########## Filter only reataurants inside boundaries ##########
         let filteredList = [...defaultlList, ...restaurants].filter(
           (e) =>
-            e.geometry.location.lng < newBounds.ne.lng &&
-            e.geometry.location.lng > newBounds.sw.lng &&
-            e.geometry.location.lat < newBounds.ne.lat &&
-            e.geometry.location.lat > newBounds.sw.lat
+            e.geometry.location.lng < newBounds.getNorthEast().lng() &&
+            e.geometry.location.lng > newBounds.getSouthWest().lng() &&
+            e.geometry.location.lat < newBounds.getNorthEast().lat() &&
+            e.geometry.location.lat > newBounds.getSouthWest().lat()
         );
         filteredList.map(
           (e) => (e.label = labels[labelIndex++ % labels.length])
@@ -37,13 +39,24 @@ class List extends Component {
     );
   };
 
+  componentDidMount() {
+    if (
+      !defaultlList.find((e) => e.place_id === this.props.newPlace.place_id) &&
+      this.props.newPlace.place_id !== ''
+    ) {
+      defaultlList.push(this.props.newPlace);
+      this.filterIt(this.props.newBounds);
+    }
+  }
+
   componentDidUpdate(a) {
-    // ##########  Check if bounds are changed ##########
+    // ##########  Filter list again when bounds changed ##########
     if (this.props.newBounds !== a.newBounds) {
       this.filterIt(this.props.newBounds);
     }
   }
 
+  // ########## When pointer hover over list Item ##########
   handleMouseOver = (e) => {
     const item = document.getElementById(e.target.id);
 
@@ -51,6 +64,7 @@ class List extends Component {
     item.classList.add('bg-warning', 'border-danger');
   };
 
+  // ########## When pointer go out from list Item ##########
   handleMouseOut = (e) => {
     const item = document.getElementById(e.target.id);
 

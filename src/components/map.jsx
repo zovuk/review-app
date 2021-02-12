@@ -49,7 +49,7 @@ class Map extends Component {
         );
     }
 
-    // ########## Set map center and zoom dinamicly ##########
+    // ########## Set map center and zoom ##########
     if (prevProps.idleListener !== this.props.idleListener) {
       if (!this.props.idleListener) {
         map.setCenter(
@@ -117,11 +117,7 @@ class Map extends Component {
     // ########## Get bounds with idle listener ##########
     window.google.maps.event.addListener(map, 'idle', () => {
       if (this.props.idleListener && !this.props.addingRestaurant) {
-        const neBounds = map.getBounds().getNorthEast();
-        const swBounds = map.getBounds().getSouthWest();
-        const sw = { lat: swBounds.lat(), lng: swBounds.lng() };
-        const ne = { lat: neBounds.lat(), lng: neBounds.lng() };
-        this.props.onBoundsChange({ sw, ne });
+        this.props.onBoundsChange(map.getBounds());
 
         // ########## Get center and zoom for returning on the list view ##########
         this.setState({ savedCenter: map.getCenter(), zoom: map.getZoom() });

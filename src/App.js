@@ -5,17 +5,23 @@ import Button from './components/seeListButton';
 import NewRestaurant from './components/newRestaurant';
 import Restaurant from './components/restaurant';
 import Picture from './components/picture';
-// import FilterStars from './components/filterStars';
 import './App.css';
 
 class App extends Component {
   state = {
     idleListener: true,
-    addingRestaurant: false,
+    toggleNewPlace: false,
     restaurants: [],
     bounds: {},
     selectedRestaurantID: '',
     selectedRestaurantCoors: {},
+    newPlace: {
+      name: '',
+      vicinity: '',
+      place_id: '',
+      geometry: {},
+      save: false,
+    },
   };
 
   onBoundsChange = (bounds) => {
@@ -45,16 +51,15 @@ class App extends Component {
     });
   };
 
-  handleAddRestaurant = () => {
+  toggleNewPlace = (e) => {
     this.setState({
-      addingRestaurant: this.state.addingRestaurant ? false : true,
+      toggleNewPlace: this.state.toggleNewPlace ? false : true,
     });
   };
 
-  // addNewPlace = (a, b) => {
-  //   this.setObjectByPath([newPlace, a], b);
-  //   console.log(this.state.newPlace);
-  // };
+  addNewPlace = (value) => {
+    this.setState({ newPlace: Object.assign({}, this.state.newPlace, value) });
+  };
 
   render() {
     return (
@@ -67,7 +72,7 @@ class App extends Component {
               newBounds={this.state.bounds}
               selectedRestaurantID={this.state.selectedRestaurantID}
               idleListener={this.state.idleListener}
-              addingRestaurant={this.state.addingRestaurant}
+              toggleNewPlace={this.state.toggleNewPlace}
               onBoundsChange={this.onBoundsChange}
             />
             {!this.state.idleListener && (
@@ -84,24 +89,15 @@ class App extends Component {
           <div
             className={this.state.idleListener ? 'scroll col-md-4' : 'col-md-8'}
           >
-            {/* {!this.state.addingRestaurant && (
-              <FilterStars
-                onMinChange={console.log('minimal')}
-                onMaxChange={console.log('maximal')}
-                minStars={1}
-                maxStars={3}
-                hidden={true}
-              />
-            )} */}
             {this.state.idleListener && (
               <NewRestaurant
-                // idleListener={this.state.idleListener}
-                handleClick={this.handleAddRestaurant}
-                addingRestaurant={this.state.addingRestaurant}
-                // addNewPlace={this.addNewPlace}
+                handleClick={this.toggleNewPlace}
+                toggleNewPlace={this.state.toggleNewPlace}
+                addNewPlace={this.addNewPlace}
+                newPlace={this.state.newPlace}
               ></NewRestaurant>
             )}
-            {this.state.idleListener && !this.state.addingRestaurant && (
+            {this.state.idleListener && !this.state.toggleNewPlace && (
               <List
                 newBounds={this.state.bounds}
                 filteredList={this.filteredList}
@@ -109,6 +105,7 @@ class App extends Component {
                 handleMouseOver={this.handleMouseOver}
                 handleMouseOut={this.handleMouseOut}
                 handleClick={this.handleClick}
+                newPlace={this.state.newPlace}
               />
             )}
             {!this.state.idleListener && (
