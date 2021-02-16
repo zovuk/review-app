@@ -19,8 +19,9 @@ class List extends Component {
         bounds: newBounds,
         type: ['restaurant'],
       },
-      (results, status) => {
+      (results) => {
         restaurants = JSON.parse(JSON.stringify(results));
+        restaurants.map((e) => (e.from = 'google'));
 
         // ########## Filter only reataurants inside boundaries ##########
         let filteredList = [...defaultlList, ...restaurants].filter(
@@ -53,6 +54,12 @@ class List extends Component {
     // ##########  Filter list again when bounds changed ##########
     if (this.props.newBounds !== a.newBounds) {
       this.filterIt(this.props.newBounds);
+    }
+  }
+
+  componentWillUnmount() {
+    if (this.props.toggleNewPlace) {
+      this.props.filteredList([]);
     }
   }
 

@@ -49,7 +49,7 @@ class Map extends Component {
         );
     }
 
-    // ########## Set map center and zoom ##########
+    // ########## Set map center and zoom when toggle Restaurant info ##########
     if (prevProps.idleListener !== this.props.idleListener) {
       if (!this.props.idleListener) {
         map.setCenter(
@@ -63,19 +63,38 @@ class Map extends Component {
         map.setZoom(this.state.zoom);
       }
     }
+
+    // ########## Get last zoom and center data when new restaurant ##########
+    if (
+      prevProps.toggleNewPlace !== this.props.toggleNewPlace &&
+      !this.props.toggleNewPlace
+    ) {
+      this.setState({ savedCenter: map.getCenter(), zoom: map.getZoom() });
+      this.props.onBoundsChange(map.getBounds());
+    }
+
+    if (
+      prevProps.toggleNewPlace !== this.props.toggleNewPlace &&
+      this.props.toggleNewPlace
+    ) {
+      markers.map((e) => e.setMap(null));
+    }
   }
 
   addMarker = (e) => {
-    const marker = new window.google.maps.Marker({
-      position: e.geometry.location,
-      icon: {
-        url: `${options.restaurantIcon.url}${e.label}|33338B|FFF`,
-        scaledSize: new window.google.maps.Size(45, 45),
-      },
-      title: e.name,
-    });
-    marker.id = e.place_id;
-    markers.push(marker);
+    if (markers) {
+      const marker = new window.google.maps.Marker({
+        position: e.geometry.location,
+        icon: {
+          url: `${options.restaurantIcon.url}${e.label}|33338B|FFF`,
+          scaledSize: new window.google.maps.Size(45, 45),
+          anchor: new window.google.maps.Point(13, 44),
+        },
+        title: e.name,
+      });
+      marker.id = e.place_id;
+      markers.push(marker);
+    }
   };
 
   onScriptLoad = () => {
@@ -116,7 +135,7 @@ class Map extends Component {
 
     // ########## Get bounds with idle listener ##########
     window.google.maps.event.addListener(map, 'idle', () => {
-      if (this.props.idleListener && !this.props.addingRestaurant) {
+      if (this.props.idleListener && !this.props.toggleNewPlace) {
         this.props.onBoundsChange(map.getBounds());
 
         // ########## Get center and zoom for returning on the list view ##########

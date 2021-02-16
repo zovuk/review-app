@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import Map from './components/map';
 import List from './components/restaurantsList';
 import Button from './components/seeListButton';
+import NewRestaurantBtn from './components/newRestaurantBtn';
 import NewRestaurant from './components/newRestaurant';
 import Restaurant from './components/restaurant';
 import Picture from './components/picture';
@@ -16,11 +17,10 @@ class App extends Component {
     selectedRestaurantID: '',
     selectedRestaurantCoors: {},
     newPlace: {
-      name: '',
-      vicinity: '',
+      name: '...',
+      vicinity: '...',
       place_id: '',
       geometry: {},
-      save: false,
     },
   };
 
@@ -45,20 +45,22 @@ class App extends Component {
     this.setState({ selectedRestaurantID: undefined });
   };
 
-  handleClick = () => {
+  handleClick = (e) => {
     this.setState({
       idleListener: this.state.idleListener ? false : true,
     });
   };
 
-  toggleNewPlace = (e) => {
+  toggleNewPlace = () => {
     this.setState({
       toggleNewPlace: this.state.toggleNewPlace ? false : true,
     });
   };
 
-  addNewPlace = (value) => {
-    this.setState({ newPlace: Object.assign({}, this.state.newPlace, value) });
+  addNewPlace = (e) => {
+    this.setState({
+      newPlace: e,
+    });
   };
 
   render() {
@@ -89,16 +91,22 @@ class App extends Component {
           <div
             className={this.state.idleListener ? 'scroll col-md-4' : 'col-md-8'}
           >
-            {this.state.idleListener && (
+            {!this.state.toggleNewPlace && this.state.idleListener && (
+              <NewRestaurantBtn
+                handleClick={this.toggleNewPlace}
+              ></NewRestaurantBtn>
+            )}
+            {this.state.toggleNewPlace && (
               <NewRestaurant
                 handleClick={this.toggleNewPlace}
                 toggleNewPlace={this.state.toggleNewPlace}
                 addNewPlace={this.addNewPlace}
-                newPlace={this.state.newPlace}
+                onBoundsChange={this.onBoundsChange}
               ></NewRestaurant>
             )}
             {this.state.idleListener && !this.state.toggleNewPlace && (
               <List
+                toggleNewPlace={this.state.toggleNewPlace}
                 newBounds={this.state.bounds}
                 filteredList={this.filteredList}
                 restaurants={this.state.restaurants}
@@ -111,6 +119,7 @@ class App extends Component {
             {!this.state.idleListener && (
               <Restaurant
                 selectedRestaurantID={this.state.selectedRestaurantID}
+                restaurants={this.state.restaurants}
               />
             )}
           </div>

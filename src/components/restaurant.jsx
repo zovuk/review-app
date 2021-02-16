@@ -6,18 +6,31 @@ class Restaurant extends Component {
   state = { place: {} };
 
   componentDidMount() {
-    const request = {
-      placeId: this.props.selectedRestaurantID,
-      fields: [
-        'name',
-        'review',
-        'user_ratings_total',
-        'rating',
-        'formatted_address',
-      ],
-    };
-    let service = new window.google.maps.places.PlacesService(map);
-    service.getDetails(request, this.callback);
+    if (
+      this.props.restaurants.find(
+        (e) =>
+          e.place_id === this.props.selectedRestaurantID && e.from === 'google'
+      )
+    ) {
+      const request = {
+        placeId: this.props.selectedRestaurantID,
+        fields: [
+          'name',
+          'review',
+          'user_ratings_total',
+          'rating',
+          'formatted_address',
+        ],
+      };
+      let service = new window.google.maps.places.PlacesService(map);
+      service.getDetails(request, this.callback);
+    } else {
+      this.setState({
+        place: this.props.restaurants.find(
+          (e) => e.place_id === this.props.selectedRestaurantID
+        ),
+      });
+    }
   }
 
   callback = (results, status) => {
