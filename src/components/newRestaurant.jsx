@@ -78,15 +78,16 @@ class NewRestaurant extends Component {
 
   render() {
     return (
-      <div>
+      <React.Fragment>
         <form onSubmit={this.handleSubmit}>
-          <div className="row">
+          <div className="row mb-3">
             <div className="col">
-              <input
+              <button
                 type="submit"
-                value="Submit"
-                className="btn btn-warning btn-lg btn-block"
-              ></input>
+                className="btn btn-warning btn-lg btn-block shadow"
+              >
+                Submit
+              </button>
             </div>
             <div className="col">
               <button
@@ -94,13 +95,13 @@ class NewRestaurant extends Component {
                   this.handleCancel(e);
                 }}
                 type="cancel"
-                className="btn btn-warning btn-lg btn-block"
+                className="btn btn-warning btn-lg btn-block shadow"
               >
                 Cancel
               </button>
             </div>
           </div>
-          <div className="row form-group">
+          <div className="form-group">
             <label htmlFor="inputRestaurantName">Restaurant Name: </label>
 
             <input
@@ -112,7 +113,7 @@ class NewRestaurant extends Component {
               onChange={(e) => this.handleChange(e)}
             ></input>
           </div>
-          <div className="row form-group">
+          <div className="form-group">
             <label htmlFor="inputRestaurantAddress">Address:</label>
             <input
               name="vicinity"
@@ -123,7 +124,7 @@ class NewRestaurant extends Component {
             ></input>
           </div>
         </form>
-      </div>
+      </React.Fragment>
     );
   }
 }

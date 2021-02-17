@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import { map } from './map';
-// import Review from './reviews';
 
 class Restaurant extends Component {
   state = { place: {} };
@@ -42,30 +41,41 @@ class Restaurant extends Component {
   render() {
     return (
       <React.Fragment>
-        <div className="display-3 text-wrap">{this.state.place.name}</div>
-        <div>{this.state.place.formatted_address}</div>
-        <div>
+        <div className="text-shadow bg-light display-4 mb-3 p-2 text-break rounded shadow">
+          {this.state.place.name}
+        </div>
+        <div className=" mb-2">{this.state.place.formatted_address}</div>
+        <div className=" mb-3">
           {this.state.place.rating && (
-            <div className="notClickable text-secondary">
+            <div className="text-muted">
               {this.state.place.rating}
               <span className="text-danger">&#9733;</span> (
-              {this.state.place.user_ratings_total})
+              {this.state.place.user_ratings_total} total reviews)
             </div>
           )}
           {!this.state.place.rating && (
-            <div className="notClickable text-secondary">No Ratings</div>
+            <div className="text-muted">No Ratings or Reviews</div>
           )}
         </div>
         {this.state.place.reviews &&
           this.state.place.reviews.map((review) => (
-            <div key={Math.random() * 10000000}>
-              <div>{review.author_name}</div>
-              {/* <div>{review.profile_photo_url}</div> */}
-              {/* <div>{review.author_url}</div> */}
-              <div>{review.rating}</div>
-              <div>{review.relative_time_description}</div>
-              <div>{review.text}</div>
-              {/* <div>{review.time}</div> */}
+            <div className="card mb-3 shadow" key={Math.random() * 1000}>
+              <div className="card-body pl-1">
+                <div className="pl-3 card-subtitle mb-2">
+                  {review.rating && (
+                    <div>
+                      <h5 className="card-title pb-0">{review.author_name}</h5>
+                      <p>
+                        {review.rating}
+                        <span className="text-danger">&#9733; ... </span>
+                        {review.relative_time_description}
+                      </p>
+                      <p>{review.text}</p>
+                    </div>
+                  )}
+                  {!review.rating && <div>No Ratings</div>}
+                </div>
+              </div>
             </div>
           ))}
       </React.Fragment>

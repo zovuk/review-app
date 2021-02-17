@@ -1,16 +1,15 @@
 import React, { Component } from 'react';
 
 class Button extends Component {
-  state = {};
   render() {
     return (
       <div>
         <button
           onClick={(e) => this.props.handleClick(e)}
           type="button"
-          className="btn btn-warning btn-lg btn-block"
+          className="btn btn-warning btn-lg btn-block mb-3 shadow"
         >
-          See List
+          Back on the List
         </button>
       </div>
     );

@@ -15,7 +15,7 @@ class Picture extends Component {
       <div>
         <img
           src={srcURL}
-          className="img-fluid border border-primary rounded"
+          className="img-fluid border rounded mb-3"
           alt=""
         ></img>
       </div>

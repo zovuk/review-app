@@ -68,20 +68,20 @@ class List extends Component {
     const item = document.getElementById(e.target.id);
 
     item.classList.remove('bg-light');
-    item.classList.add('bg-warning', 'border-danger');
+    item.classList.add('bg-warning', 'border-danger', 'shadow');
   };
 
   // ########## When pointer go out from list Item ##########
   handleMouseOut = (e) => {
     const item = document.getElementById(e.target.id);
 
-    item.classList.remove('bg-warning', 'border-danger');
+    item.classList.remove('bg-warning', 'border-danger', 'shadow');
     item.classList.add('bg-light');
   };
 
   render() {
     return (
-      <div id="list" className="mt-2">
+      <div id="list">
         {this.props.restaurants &&
           this.props.restaurants.map((e) => (
             <div
@@ -95,27 +95,29 @@ class List extends Component {
               }}
               onClick={this.props.handleClick}
               className={
-                'slowTransition card mt-1 pl-1 bg-light border-primary'
+                'slowTransition card ml-2 mb-2 pt-1 pb-1 bg-light border-dark'
               }
               key={e.place_id}
               id={e.place_id}
             >
               <div className="notClickable row">
                 <div className="notClickable label rounded-left">{e.label}</div>
-                <div className="notClickable col-10 h6 text-truncate">
+                <div className="notClickable col-10 h6 pl-1 text-truncate">
                   "{e.name}"
                 </div>
               </div>
-              {e.rating && (
-                <div className="notClickable text-secondary">
-                  {e.rating}
-                  <span className="text-danger">&#9733;</span> (
-                  {e.user_ratings_total})
-                </div>
-              )}
-              {!e.rating && (
-                <div className="notClickable text-secondary">No Ratings</div>
-              )}
+              <div className="notClickable pl-3">
+                {e.rating && (
+                  <div className="notClickable text-muted">
+                    {e.rating}
+                    <span className="text-danger">&#9733;</span> (
+                    {e.user_ratings_total})
+                  </div>
+                )}
+                {!e.rating && (
+                  <div className="notClickable text-secondary">No Ratings</div>
+                )}
+              </div>
             </div>
           ))}
       </div>

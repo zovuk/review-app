@@ -146,9 +146,9 @@ class Map extends Component {
 
   render() {
     return (
-      <div>
+      <div className="mb-3">
         <div
-          className="card border-primary mt-2"
+          className="border border-secondary rounded"
           style={{ width: '100%', paddingBottom: '100%' }}
           id={this.props.id}
         />

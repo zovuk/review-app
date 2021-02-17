@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import Map from './components/map';
 import List from './components/restaurantsList';
-import Button from './components/seeListButton';
-import NewRestaurantBtn from './components/newRestaurantBtn';
+import Button from './components/btnBackOnList';
+import NewRestaurantBtn from './components/btnNewRestaurant';
 import NewRestaurant from './components/newRestaurant';
 import Restaurant from './components/restaurant';
 import Picture from './components/picture';
@@ -65,7 +65,7 @@ class App extends Component {
 
   render() {
     return (
-      <div className="container">
+      <div className="container  mt-2">
         <div className="row position-relative">
           <div className={this.state.idleListener ? 'col-md-8' : 'col-md-4'}>
             <Map
@@ -88,34 +88,45 @@ class App extends Component {
             )}
           </div>
 
-          <div
-            className={this.state.idleListener ? 'scroll col-md-4' : 'col-md-8'}
-          >
+          <div className={this.state.idleListener ? 'col-md-4' : 'col-md-8'}>
             {!this.state.toggleNewPlace && this.state.idleListener && (
-              <NewRestaurantBtn
-                handleClick={this.toggleNewPlace}
-              ></NewRestaurantBtn>
+              <div className="p-3 mb-3 rounded shadow">
+                <div className="row pl-3 pr-3">
+                  <NewRestaurantBtn
+                    handleClick={this.toggleNewPlace}
+                  ></NewRestaurantBtn>
+                  <div className="col ml-3 shadow rounded border-secondary">
+                    FILTER
+                  </div>
+                </div>
+              </div>
             )}
+
             {this.state.toggleNewPlace && (
-              <NewRestaurant
-                handleClick={this.toggleNewPlace}
-                toggleNewPlace={this.state.toggleNewPlace}
-                addNewPlace={this.addNewPlace}
-                onBoundsChange={this.onBoundsChange}
-              ></NewRestaurant>
+              <div className="p-3 rounded shadow">
+                <NewRestaurant
+                  handleClick={this.toggleNewPlace}
+                  toggleNewPlace={this.state.toggleNewPlace}
+                  addNewPlace={this.addNewPlace}
+                  onBoundsChange={this.onBoundsChange}
+                ></NewRestaurant>
+              </div>
             )}
             {this.state.idleListener && !this.state.toggleNewPlace && (
-              <List
-                toggleNewPlace={this.state.toggleNewPlace}
-                newBounds={this.state.bounds}
-                filteredList={this.filteredList}
-                restaurants={this.state.restaurants}
-                handleMouseOver={this.handleMouseOver}
-                handleMouseOut={this.handleMouseOut}
-                handleClick={this.handleClick}
-                newPlace={this.state.newPlace}
-              />
+              <div className="scroll p-3 rounded shadow">
+                <List
+                  toggleNewPlace={this.state.toggleNewPlace}
+                  newBounds={this.state.bounds}
+                  filteredList={this.filteredList}
+                  restaurants={this.state.restaurants}
+                  handleMouseOver={this.handleMouseOver}
+                  handleMouseOut={this.handleMouseOut}
+                  handleClick={this.handleClick}
+                  newPlace={this.state.newPlace}
+                />
+              </div>
             )}
+
             {!this.state.idleListener && (
               <Restaurant
                 selectedRestaurantID={this.state.selectedRestaurantID}
