@@ -83,14 +83,14 @@ class AddReview extends Component {
             </div>
             <div className="form-group">
               <label htmlFor="inputRestaurantAddress">Review:</label>
-              <input
+              <textarea
                 name="text"
                 className="form-control"
                 id="inputText"
                 value={this.state.text}
                 placeholder="Enter your review here..."
                 onChange={(e) => this.handleChange(e)}
-              ></input>
+              ></textarea>
             </div>
           </form>
         </div>

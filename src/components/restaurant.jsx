@@ -6,7 +6,14 @@ let newReviews = [],
   reviews = [],
   place = {};
 class Restaurant extends Component {
-  state = { place: {}, reviews: [], addReview: false, disabled: false };
+  state = {
+    place: {},
+    rating: 0,
+    user_ratings_total: 0,
+    reviews: [],
+    addReview: false,
+    disabled: false,
+  };
 
   componentDidMount() {
     reviews = [];
@@ -28,7 +35,7 @@ class Restaurant extends Component {
         ],
       };
       let service = new window.google.maps.places.PlacesService(map);
-      service.getDetails(request, this.callback);
+      service.getDetails(request, this.getReviews);
     } else {
       place = this.props.restaurants.find(
         (e) => e.place_id === this.props.selectedRestaurantID
@@ -38,17 +45,48 @@ class Restaurant extends Component {
   }
 
   setReviews = () => {
+    let newRatings = 0;
+    // provjera da li postoje reviews
     place.reviews ? (reviews = place.reviews) : (reviews = []);
+
+    // ako nema review postavljanje na 0
+    if (isNaN(place.user_ratings_total)) {
+      place.rating = 0;
+      place.user_ratings_total = 0;
+    }
+
+    // filtriranje samo novo dodanih review
     const filteredReviews = newReviews.filter(
       (e) => e.place_id === this.props.selectedRestaurantID
     );
+
+    // ako postoje novi review zbroji rating
+    if (filteredReviews.length > 0) {
+      for (let i = 0; i < filteredReviews.length; i++) {
+        newRatings = newRatings + filteredReviews[i].rating;
+      }
+    }
+
+    // izracunaj novi rating na jednu decimalu
+    newRatings =
+      filteredReviews.length > 0
+        ? Math.round(
+            ((newRatings + place.rating) /
+              (filteredReviews.length + (place.rating === 0 ? 0 : 1))) *
+              10
+          ) / 10
+        : place.rating;
+
+    // postavi state
     this.setState({
       place: place,
       reviews: [...filteredReviews, ...reviews],
+      user_ratings_total: place.user_ratings_total + filteredReviews.length,
+      rating: newRatings,
     });
   };
 
-  callback = (results, status) => {
+  getReviews = (results, status) => {
     if (status === window.google.maps.places.PlacesServiceStatus.OK) {
       place = JSON.parse(JSON.stringify(results));
       this.setReviews();
@@ -82,14 +120,14 @@ class Restaurant extends Component {
               {this.state.place.vicinity}
             </div>
             <div className="mb-3">
-              {this.state.place.rating && (
+              {this.state.user_ratings_total !== 0 && (
                 <div className="text-muted">
-                  {this.state.place.rating}
+                  {this.state.rating}
                   <span className="text-danger">&#9733;</span> (
-                  {this.state.place.user_ratings_total} total)
+                  {this.state.user_ratings_total} total)
                 </div>
               )}
-              {!this.state.place.rating && (
+              {this.state.user_ratings_total === 0 && (
                 <div className="text-muted">No Ratings or Reviews</div>
               )}
             </div>
