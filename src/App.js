@@ -2,8 +2,8 @@ import React, { Component } from 'react';
 import Map from './components/map';
 import List from './components/restaurantsList';
 import Button from './components/btnBackOnList';
-import NewRestaurantBtn from './components/btnNewRestaurant';
-import NewRestaurant from './components/newRestaurant';
+import BtnAddRestaurant from './components/btnAddRestaurant';
+import AddRestaurant from './components/addRestaurant';
 import Restaurant from './components/restaurant';
 import Picture from './components/picture';
 import './App.css';
@@ -92,9 +92,9 @@ class App extends Component {
             {!this.state.toggleNewPlace && this.state.idleListener && (
               <div className="p-3 mb-3 rounded shadow">
                 <div className="row pl-3 pr-3">
-                  <NewRestaurantBtn
+                  <BtnAddRestaurant
                     handleClick={this.toggleNewPlace}
-                  ></NewRestaurantBtn>
+                  ></BtnAddRestaurant>
                   <div className="col ml-3 shadow rounded border-secondary">
                     FILTER
                   </div>
@@ -104,12 +104,12 @@ class App extends Component {
 
             {this.state.toggleNewPlace && (
               <div className="p-3 rounded shadow">
-                <NewRestaurant
+                <AddRestaurant
                   handleClick={this.toggleNewPlace}
                   toggleNewPlace={this.state.toggleNewPlace}
                   addNewPlace={this.addNewPlace}
                   onBoundsChange={this.onBoundsChange}
-                ></NewRestaurant>
+                ></AddRestaurant>
               </div>
             )}
             {this.state.idleListener && !this.state.toggleNewPlace && (

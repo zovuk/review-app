@@ -24,11 +24,21 @@
   padding-left: 4px;
 }
 
+.text-shadow {
+  text-shadow: 2px 1px indigo;
+}
+
 .scroll {
   overflow-y: auto;
   max-height: 88vh;
 }
 
-.text-shadow {
-  text-shadow: 2px 1px indigo;
+@media (max-width: 575px) {
+  .scroll {
+    overflow-y: visible;
+  }
+}
+
+.minHeight {
+  min-height: 65px;
 }

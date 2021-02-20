@@ -1,10 +1,16 @@
 import React, { Component } from 'react';
+import AddReview from './addReview';
 import { map } from './map';
 
+let newReviews = [],
+  reviews = [],
+  place = {};
 class Restaurant extends Component {
-  state = { place: {} };
+  state = { place: {}, reviews: [], addReview: false, disabled: false };
 
   componentDidMount() {
+    reviews = [];
+    place = {};
     if (
       this.props.restaurants.find(
         (e) =>
@@ -24,17 +30,41 @@ class Restaurant extends Component {
       let service = new window.google.maps.places.PlacesService(map);
       service.getDetails(request, this.callback);
     } else {
-      this.setState({
-        place: this.props.restaurants.find(
-          (e) => e.place_id === this.props.selectedRestaurantID
-        ),
-      });
+      place = this.props.restaurants.find(
+        (e) => e.place_id === this.props.selectedRestaurantID
+      );
+      this.setReviews();
     }
   }
 
+  setReviews = () => {
+    place.reviews ? (reviews = place.reviews) : (reviews = []);
+    const filteredReviews = newReviews.filter(
+      (e) => e.place_id === this.props.selectedRestaurantID
+    );
+    this.setState({
+      place: place,
+      reviews: [...filteredReviews, ...reviews],
+    });
+  };
+
   callback = (results, status) => {
     if (status === window.google.maps.places.PlacesServiceStatus.OK) {
-      this.setState({ place: JSON.parse(JSON.stringify(results)) });
+      place = JSON.parse(JSON.stringify(results));
+      this.setReviews();
+    }
+  };
+
+  handleAddReview = (e) => {
+    this.setState({
+      addReview: this.state.addReview ? false : true,
+      disabled: this.state.disabled ? false : true,
+    });
+    if (e && e.author_name) {
+      let newReview = e;
+      newReview.place_id = this.props.selectedRestaurantID;
+      newReviews.push(newReview);
+      this.setReviews();
     }
   };
 
@@ -44,21 +74,44 @@ class Restaurant extends Component {
         <div className="text-shadow bg-light display-4 mb-3 p-2 text-break rounded shadow">
           {this.state.place.name}
         </div>
-        <div className=" mb-2">{this.state.place.formatted_address}</div>
-        <div className=" mb-3">
-          {this.state.place.rating && (
-            <div className="text-muted">
-              {this.state.place.rating}
-              <span className="text-danger">&#9733;</span> (
-              {this.state.place.user_ratings_total} total reviews)
+
+        <div className="row">
+          <div className="col minHeight pl-4">
+            <div className="mb-2">
+              {this.state.place.formatted_address}
+              {this.state.place.vicinity}
             </div>
-          )}
-          {!this.state.place.rating && (
-            <div className="text-muted">No Ratings or Reviews</div>
-          )}
+            <div className="mb-3">
+              {this.state.place.rating && (
+                <div className="text-muted">
+                  {this.state.place.rating}
+                  <span className="text-danger">&#9733;</span> (
+                  {this.state.place.user_ratings_total} total)
+                </div>
+              )}
+              {!this.state.place.rating && (
+                <div className="text-muted">No Ratings or Reviews</div>
+              )}
+            </div>
+          </div>
+          <div className="col">
+            <button
+              type="submit"
+              className="btn btn-warning btn-lg btn-block shadow"
+              onClick={this.handleAddReview}
+              disabled={this.state.disabled}
+            >
+              Add Review
+            </button>
+          </div>
         </div>
-        {this.state.place.reviews &&
-          this.state.place.reviews.map((review) => (
+
+        {this.state.addReview && (
+          <AddReview handleAddReview={this.handleAddReview} />
+        )}
+
+        {this.state.reviews &&
+          this.state.reviews.map((review) => (
             <div className="card mb-3 shadow" key={Math.random() * 1000}>
               <div className="card-body pl-1">
                 <div className="pl-3 card-subtitle mb-2">
