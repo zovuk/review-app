@@ -5,12 +5,11 @@ import { map } from './map';
 let newReviews = [],
   reviews = [],
   place = {};
+
 class Restaurant extends Component {
   state = {
     place: {},
     rating: 0,
-    user_ratings_total: 0,
-    reviews: [],
     addReview: false,
     disabled: false,
   };
@@ -46,28 +45,27 @@ class Restaurant extends Component {
 
   setReviews = () => {
     let newRatings = 0;
-    // provjera da li postoje reviews
     place.reviews ? (reviews = place.reviews) : (reviews = []);
 
-    // ako nema review postavljanje na 0
+    // ########## avoiding faulty ##########
     if (isNaN(place.user_ratings_total)) {
       place.rating = 0;
       place.user_ratings_total = 0;
     }
 
-    // filtriranje samo novo dodanih review
+    // ########## filter through new ##########
     const filteredReviews = newReviews.filter(
       (e) => e.place_id === this.props.selectedRestaurantID
     );
 
-    // ako postoje novi review zbroji rating
+    // ########## calculate ratings with new ##########
     if (filteredReviews.length > 0) {
       for (let i = 0; i < filteredReviews.length; i++) {
         newRatings = newRatings + filteredReviews[i].rating;
       }
     }
 
-    // izracunaj novi rating na jednu decimalu
+    // ########## round on 1 decimal ##########
     newRatings =
       filteredReviews.length > 0
         ? Math.round(
@@ -77,15 +75,20 @@ class Restaurant extends Component {
           ) / 10
         : place.rating;
 
-    // postavi state
+    // ########## set state ##########
     this.setState({
       place: place,
       reviews: [...filteredReviews, ...reviews],
-      user_ratings_total: place.user_ratings_total + filteredReviews.length,
-      rating: newRatings,
     });
+
+    // ########## lift up ratings ##########
+    this.props.updateRatings(
+      newRatings,
+      place.user_ratings_total + filteredReviews.length
+    );
   };
 
+  // ########## getting reviews from google ##########
   getReviews = (results, status) => {
     if (status === window.google.maps.places.PlacesServiceStatus.OK) {
       place = JSON.parse(JSON.stringify(results));
@@ -93,6 +96,7 @@ class Restaurant extends Component {
     }
   };
 
+  // ########## add new review ##########
   handleAddReview = (e) => {
     this.setState({
       addReview: this.state.addReview ? false : true,
@@ -120,14 +124,14 @@ class Restaurant extends Component {
               {this.state.place.vicinity}
             </div>
             <div className="mb-3">
-              {this.state.user_ratings_total !== 0 && (
+              {this.props.newRatings.user_ratings_total !== 0 && (
                 <div className="text-muted">
-                  {this.state.rating}
+                  {this.props.newRatings.rating}
                   <span className="text-danger">&#9733;</span> (
-                  {this.state.user_ratings_total} total)
+                  {this.props.newRatings.user_ratings_total} total)
                 </div>
               )}
-              {this.state.user_ratings_total === 0 && (
+              {this.props.newRatings.user_ratings_total === 0 && (
                 <div className="text-muted">No Ratings or Reviews</div>
               )}
             </div>

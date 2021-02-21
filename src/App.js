@@ -22,6 +22,11 @@ class App extends Component {
       place_id: '',
       geometry: {},
     },
+    newRatings: {
+      place_id: '',
+      rating: -1,
+      user_ratings_total: -1,
+    },
   };
 
   onBoundsChange = (bounds) => {
@@ -60,6 +65,16 @@ class App extends Component {
   addNewPlace = (e) => {
     this.setState({
       newPlace: e,
+    });
+  };
+
+  updateRatings = (a, b) => {
+    this.setState({
+      newRatings: {
+        place_id: this.state.selectedRestaurantID,
+        rating: a,
+        user_ratings_total: b,
+      },
     });
   };
 
@@ -123,6 +138,8 @@ class App extends Component {
                   handleMouseOut={this.handleMouseOut}
                   handleClick={this.handleClick}
                   newPlace={this.state.newPlace}
+                  selectedRestaurantID={this.state.selectedRestaurantID}
+                  newRatings={this.state.newRatings}
                 />
               </div>
             )}
@@ -131,6 +148,8 @@ class App extends Component {
               <Restaurant
                 selectedRestaurantID={this.state.selectedRestaurantID}
                 restaurants={this.state.restaurants}
+                updateRatings={this.updateRatings}
+                newRatings={this.state.newRatings}
               />
             )}
           </div>

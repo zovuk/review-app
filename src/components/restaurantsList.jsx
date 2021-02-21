@@ -4,8 +4,10 @@ import { map } from './map';
 
 const list = JSON.stringify(LocalList);
 let defaultlList = JSON.parse(list);
+let listRight = [];
 const labels = 'ABCDEFGHIJKLMNOPQRSTUVWXYZÄÖß123456789';
 let labelIndex = 0;
+let newRatings = [];
 class List extends Component {
   state = { listItemBg: 'bg-light' };
 
@@ -34,6 +36,18 @@ class List extends Component {
         filteredList.map(
           (e) => (e.label = labels[labelIndex++ % labels.length])
         );
+
+        // ########## creating list for rendering ##########
+        listRight = [...filteredList];
+        listRight.map((e, indx) => {
+          if (newRatings.find((r) => e.place_id === r.place_id)) {
+            listRight[indx] = {
+              ...e,
+              ...newRatings.find((r) => e.place_id === r.place_id),
+            };
+          }
+          return null;
+        });
         labelIndex = 0;
         this.props.filteredList(filteredList);
       }
@@ -41,6 +55,10 @@ class List extends Component {
   };
 
   componentDidMount() {
+    // ########## saving every new rating score ##########
+    newRatings.unshift(this.props.newRatings);
+
+    // ########## add new restaurant on default local list ##########
     if (
       !defaultlList.find((e) => e.place_id === this.props.newPlace.place_id) &&
       this.props.newPlace.place_id !== ''
@@ -51,7 +69,7 @@ class List extends Component {
   }
 
   componentDidUpdate(a) {
-    // ##########  Filter list again when bounds changed ##########
+    // ########## Filter list again when bounds changed ##########
     if (this.props.newBounds !== a.newBounds) {
       this.filterIt(this.props.newBounds);
     }
@@ -82,8 +100,8 @@ class List extends Component {
   render() {
     return (
       <div id="list">
-        {this.props.restaurants &&
-          this.props.restaurants.map((e) => (
+        {listRight &&
+          listRight.map((e) => (
             <div
               onMouseOver={(e) => {
                 this.props.handleMouseOver(e);
@@ -107,7 +125,7 @@ class List extends Component {
                 </div>
               </div>
               <div className="notClickable pl-3">
-                {e.rating && (
+                {e.user_ratings_total > 0 && (
                   <div className="notClickable text-muted">
                     {e.rating}
                     <span className="text-danger">&#9733;</span> (

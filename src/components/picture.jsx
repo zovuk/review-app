@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import { theKey } from './apiKey';
 
 class Picture extends Component {
-  //   state = {};
   render() {
     const srcURL =
       'https://maps.googleapis.com/maps/api/streetview?size=600x600&location=' +
