@@ -42,3 +42,6 @@
 .minHeight {
   min-height: 65px;
 }
+.slider-width {
+  max-width: 250px;
+}

@@ -38,7 +38,8 @@ class AddReview extends Component {
 
   handleChange = (e) => {
     this.setState({
-      [e.target.name]: e.target.value,
+      [e.target.name]:
+        e.target.name === 'rating' ? parseInt(e.target.value) : e.target.value,
     });
   };
 
@@ -70,7 +71,9 @@ class AddReview extends Component {
               </div>
             </div>
             <div className="form-group">
-              <label htmlFor="inputRestaurantName">Author Name: </label>
+              <label htmlFor="inputRestaurantName" className="pl-3">
+                <strong>Author Name: </strong>
+              </label>
 
               <input
                 name="author_name"
@@ -81,8 +84,35 @@ class AddReview extends Component {
                 onChange={(e) => this.handleChange(e)}
               ></input>
             </div>
+
+            <div className="card-body border rounded mb-3 mt-4 pb-1">
+              <div className="form-group">
+                <label htmlFor="rating">
+                  <strong>Rating </strong>
+                  <span className="text-muted">(use slider): </span>
+                  <strong>
+                    {' '}
+                    {this.state.rating}
+                    <span className="text-danger">&#9733;</span>
+                  </strong>
+                </label>
+                <input
+                  type="range"
+                  className="form-control-range slider-width"
+                  id="rating"
+                  name="rating"
+                  min="1"
+                  max="5"
+                  value={this.state.rating}
+                  onChange={(e) => this.handleChange(e)}
+                ></input>
+              </div>
+            </div>
+
             <div className="form-group">
-              <label htmlFor="inputRestaurantAddress">Review:</label>
+              <label htmlFor="inputRestaurantAddress" className="pl-3">
+                <strong>Review:</strong>
+              </label>
               <textarea
                 name="text"
                 className="form-control"

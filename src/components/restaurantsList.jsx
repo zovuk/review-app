@@ -129,7 +129,7 @@ class List extends Component {
                   <div className="notClickable text-muted">
                     {e.rating}
                     <span className="text-danger">&#9733;</span> (
-                    {e.user_ratings_total})
+                    {e.user_ratings_total} total)
                   </div>
                 )}
                 {!e.rating && (

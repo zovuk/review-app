@@ -107,6 +107,7 @@ class Restaurant extends Component {
           relative_time_description: this.getHumanTime(current - time),
         };
       }
+      return null;
     });
 
     // ########## set state ##########
