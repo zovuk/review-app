@@ -43,6 +43,28 @@ class Restaurant extends Component {
     }
   }
 
+  // ########## getting reviews from google ##########
+  getReviews = (results, status) => {
+    if (status === window.google.maps.places.PlacesServiceStatus.OK) {
+      place = JSON.parse(JSON.stringify(results));
+      this.setReviews();
+    }
+  };
+
+  // ########## add new review ##########
+  handleAddReview = (e) => {
+    this.setState({
+      addReview: this.state.addReview ? false : true,
+      disabled: this.state.disabled ? false : true,
+    });
+    if (e && e.author_name) {
+      let newReview = e;
+      newReview.place_id = this.props.selectedRestaurantID;
+      newReviews.push(newReview);
+      this.setReviews();
+    }
+  };
+
   setReviews = () => {
     let newRatings = 0;
     place.reviews ? (reviews = place.reviews) : (reviews = []);
@@ -75,6 +97,18 @@ class Restaurant extends Component {
           ) / 10
         : place.rating;
 
+    // ########## calculating relative time description ##########
+    filteredReviews.map((e, indx) => {
+      if (!e.relative_time_description) {
+        const time = filteredReviews[indx].time;
+        const current = new Date().getTime();
+        filteredReviews[indx] = {
+          ...filteredReviews[indx],
+          relative_time_description: this.getHumanTime(current - time),
+        };
+      }
+    });
+
     // ########## set state ##########
     this.setState({
       place: place,
@@ -88,26 +122,37 @@ class Restaurant extends Component {
     );
   };
 
-  // ########## getting reviews from google ##########
-  getReviews = (results, status) => {
-    if (status === window.google.maps.places.PlacesServiceStatus.OK) {
-      place = JSON.parse(JSON.stringify(results));
-      this.setReviews();
-    }
-  };
+  getHumanTime = (timestamp) => {
+    const time = Math.abs(timestamp);
+    let humanTime, units;
 
-  // ########## add new review ##########
-  handleAddReview = (e) => {
-    this.setState({
-      addReview: this.state.addReview ? false : true,
-      disabled: this.state.disabled ? false : true,
-    });
-    if (e && e.author_name) {
-      let newReview = e;
-      newReview.place_id = this.props.selectedRestaurantID;
-      newReviews.push(newReview);
-      this.setReviews();
+    if (time > 1000 * 60 * 60 * 24 * 365) {
+      humanTime = parseInt(time / (1000 * 60 * 60 * 24 * 365), 10);
+      units = 'years ago';
+    } else if (time > 1000 * 60 * 60 * 24 * 30) {
+      humanTime = parseInt(time / (1000 * 60 * 60 * 24 * 30), 10);
+      units = 'months ago';
+    } else if (time > 1000 * 60 * 60 * 24 * 7) {
+      humanTime = parseInt(time / (1000 * 60 * 60 * 24 * 7), 10);
+      units = 'weeks ago';
+    } else if (time > 1000 * 60 * 60 * 24) {
+      humanTime = parseInt(time / (1000 * 60 * 60 * 24), 10);
+      units = 'days ago';
+    } else if (time > 1000 * 60 * 60) {
+      humanTime = parseInt(time / (1000 * 60 * 60), 10);
+      units = 'hours ago';
+    } else if (time > 1000 * 60) {
+      humanTime = parseInt(time / (1000 * 60), 10);
+      units = 'minutes ago';
+    } else if (time > 1000) {
+      humanTime = parseInt(time / 1000, 10);
+      units = 'seconds ago';
+    } else {
+      humanTime = 'few';
+      units = 'moments ago';
     }
+
+    return humanTime + ' ' + units;
   };
 
   render() {
