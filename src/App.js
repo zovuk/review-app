@@ -1,32 +1,111 @@
 import React, { Component } from 'react';
 import Map from './components/map';
+import BtnAddRestaurant from './components/btnAddRestaurant';
+import Range from './components/range';
 import List from './components/restaurantsList';
 import Button from './components/btnBackOnList';
-import BtnAddRestaurant from './components/btnAddRestaurant';
-import AddRestaurant from './components/addRestaurant';
 import Restaurant from './components/restaurant';
+import NewRestaurant from './components/addRestaurant';
 import Picture from './components/picture';
-import './App.css';
+import './styles/App.css';
 
 class App extends Component {
   state = {
-    idleListener: true,
-    toggleNewPlace: false,
-    restaurants: [],
+    onlyNewData: false, // novi restorani, novi rejtinzi, nove recenzije
+    searchRestaurants: true, // trazenje vidljivih restorana
+    restaurants: [], // finalna lista restorana
     bounds: {},
     selectedRestaurantID: '',
     selectedRestaurantCoors: {},
     newPlace: {
-      name: '...',
-      vicinity: '...',
+      toggle: false,
+      name: 'Name...',
       place_id: '',
+      vicinity: 'Address...',
       geometry: {},
+      rating: 0,
+      user_ratings_total: 0,
     },
     newRatings: {
       place_id: '',
       rating: -1,
       user_ratings_total: -1,
     },
+    handleRange: [0, 5],
+  };
+
+  // ########## add new review ##########
+  handleAddReview = (e) => {
+    // prvi unos
+    if (!this.state.onlyNewData) {
+      this.setState({
+        onlyNewData: [{ place_id: e.place_id, reviews: [e] }],
+      });
+    } else {
+      const saved = this.state.onlyNewData.find(
+        (el) => el.place_id === this.state.selectedRestaurantID
+      );
+      // unos sljedece recenzije ako vec postoje druge
+      if (saved) {
+        const indx = this.state.onlyNewData
+          .map((el) => el.place_id)
+          .indexOf(this.state.selectedRestaurantID);
+        let tempNewData = [...this.state.onlyNewData];
+        tempNewData[indx].reviews
+          ? (tempNewData[indx].reviews = [...tempNewData[indx].reviews, e])
+          : (tempNewData[indx].reviews = [e]);
+        this.setState({
+          onlyNewData: tempNewData,
+        });
+      }
+      // unos ako nema tog restorana snimljenog
+      if (!saved) {
+        this.setState({
+          onlyNewData: [
+            ...this.state.onlyNewData,
+            { place_id: e.place_id, reviews: [e] },
+          ],
+        });
+      }
+    }
+  };
+
+  handleNewPlaceData = async (data) => {
+    const defaultData = () =>
+      this.setState({
+        newPlace: {
+          toggle: false,
+          name: 'Name...',
+          place_id: '',
+          vicinity: 'Address...',
+          geometry: {},
+          rating: 0,
+          user_ratings_total: 0,
+        },
+      });
+    if (data === 'form') {
+      this.setState({
+        newPlace: {
+          ...this.state.newPlace,
+          toggle: true,
+        },
+      });
+    } else if (data === 'cancel') {
+      defaultData();
+    } else if (data === 'submit') {
+      let tempList = this.state.onlyNewData ? this.state.onlyNewData : [];
+      tempList.push(this.state.newPlace);
+      this.setState({ onlyNewData: tempList });
+      await this.setState({
+        newPlace: {
+          ...this.state.newPlace,
+          toggle: false,
+        },
+      });
+      defaultData();
+    } else {
+      this.setState({ newPlace: { ...this.state.newPlace, ...data } });
+    }
   };
 
   onBoundsChange = (bounds) => {
@@ -50,21 +129,9 @@ class App extends Component {
     this.setState({ selectedRestaurantID: undefined });
   };
 
-  handleClick = (e) => {
+  handleClick = () => {
     this.setState({
-      idleListener: this.state.idleListener ? false : true,
-    });
-  };
-
-  toggleNewPlace = () => {
-    this.setState({
-      toggleNewPlace: this.state.toggleNewPlace ? false : true,
-    });
-  };
-
-  addNewPlace = (e) => {
-    this.setState({
-      newPlace: e,
+      searchRestaurants: this.state.searchRestaurants ? false : true,
     });
   };
 
@@ -78,24 +145,30 @@ class App extends Component {
     });
   };
 
+  handleRange = (e) => {
+    this.setState({ handleRange: e });
+  };
+
   render() {
     return (
       <div className="container  mt-2">
         <div className="row position-relative">
-          <div className={this.state.idleListener ? 'col-md-8' : 'col-md-4'}>
+          <div
+            className={this.state.searchRestaurants ? 'col-md-8' : 'col-md-4'}
+          >
             <Map
               id="myMap"
               restaurants={this.state.restaurants}
               newBounds={this.state.bounds}
               selectedRestaurantID={this.state.selectedRestaurantID}
-              idleListener={this.state.idleListener}
-              toggleNewPlace={this.state.toggleNewPlace}
+              toggleSearchRestaurants={this.state.searchRestaurants}
+              toggleNewPlace={this.state.newPlace.toggle}
               onBoundsChange={this.onBoundsChange}
             />
-            {!this.state.idleListener && (
+            {!this.state.searchRestaurants && (
               <Button handleClick={this.handleClick}></Button>
             )}
-            {!this.state.idleListener && (
+            {!this.state.searchRestaurants && (
               <Picture
                 selectedRestaurantID={this.state.selectedRestaurantID}
                 selectedRestaurantCoors={this.state.selectedRestaurantCoors}
@@ -103,34 +176,38 @@ class App extends Component {
             )}
           </div>
 
-          <div className={this.state.idleListener ? 'col-md-4' : 'col-md-8'}>
-            {!this.state.toggleNewPlace && this.state.idleListener && (
+          <div
+            className={this.state.searchRestaurants ? 'col-md-4' : 'col-md-8'}
+          >
+            {!this.state.newPlace.toggle && this.state.searchRestaurants && (
               <div className="p-3 mb-3 rounded shadow">
                 <div className="row pl-3 pr-3">
                   <BtnAddRestaurant
-                    handleClick={this.toggleNewPlace}
+                    handleClick={() => this.handleNewPlaceData('form')}
                   ></BtnAddRestaurant>
-                  <div className="col ml-3 shadow rounded border-secondary">
-                    FILTER
+                  <div className="col ml-3 shadow rounded border-secondary pt-2 pb-2">
+                    <Range
+                      showRange={this.state.handleRange}
+                      handleRange={this.handleRange}
+                    />
                   </div>
                 </div>
               </div>
             )}
 
-            {this.state.toggleNewPlace && (
+            {this.state.newPlace.toggle && (
               <div className="p-3 rounded shadow">
-                <AddRestaurant
-                  handleClick={this.toggleNewPlace}
-                  toggleNewPlace={this.state.toggleNewPlace}
-                  addNewPlace={this.addNewPlace}
+                <NewRestaurant
+                  newPlaceData={this.state.newPlace}
+                  handleNewPlaceData={this.handleNewPlaceData}
                   onBoundsChange={this.onBoundsChange}
-                ></AddRestaurant>
+                ></NewRestaurant>
               </div>
             )}
-            {this.state.idleListener && !this.state.toggleNewPlace && (
+            {this.state.searchRestaurants && !this.state.newPlace.toggle && (
               <div className="scroll p-3 rounded shadow">
                 <List
-                  toggleNewPlace={this.state.toggleNewPlace}
+                  toggleNewPlace={this.state.newPlace.toggle}
                   newBounds={this.state.bounds}
                   filteredList={this.filteredList}
                   restaurants={this.state.restaurants}
@@ -140,16 +217,19 @@ class App extends Component {
                   newPlace={this.state.newPlace}
                   selectedRestaurantID={this.state.selectedRestaurantID}
                   newRatings={this.state.newRatings}
+                  showRange={this.state.handleRange}
                 />
               </div>
             )}
 
-            {!this.state.idleListener && (
+            {!this.state.searchRestaurants && (
               <Restaurant
                 selectedRestaurantID={this.state.selectedRestaurantID}
                 restaurants={this.state.restaurants}
                 updateRatings={this.updateRatings}
                 newRatings={this.state.newRatings}
+                handleAddReview={this.handleAddReview}
+                onlyNewData={this.state.onlyNewData}
               />
             )}
           </div>

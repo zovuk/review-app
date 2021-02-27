@@ -5,7 +5,7 @@ class Button extends Component {
     return (
       <div>
         <button
-          onClick={(e) => this.props.handleClick(e)}
+          onClick={this.props.handleClick}
           type="button"
           className="btn btn-warning btn-lg btn-block mb-3 shadow"
         >

@@ -14,7 +14,7 @@
 }
 
 .notClickable {
-  pointer-events: none;
+  pointer-events: none !important;
 }
 
 .label {

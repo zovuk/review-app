@@ -50,8 +50,10 @@ class Map extends Component {
     }
 
     // ########## Set map center and zoom when toggle Restaurant info ##########
-    if (prevProps.idleListener !== this.props.idleListener) {
-      if (!this.props.idleListener) {
+    if (
+      prevProps.toggleSearchRestaurants !== this.props.toggleSearchRestaurants
+    ) {
+      if (!this.props.toggleSearchRestaurants) {
         map.setCenter(
           this.props.restaurants.find(
             (e) => e.place_id === this.props.selectedRestaurantID
@@ -135,7 +137,7 @@ class Map extends Component {
 
     // ########## Get bounds with idle listener ##########
     window.google.maps.event.addListener(map, 'idle', () => {
-      if (this.props.idleListener && !this.props.toggleNewPlace) {
+      if (this.props.toggleSearchRestaurants && !this.props.toggleNewPlace) {
         this.props.onBoundsChange(map.getBounds());
 
         // ########## Get center and zoom for returning on the list view ##########

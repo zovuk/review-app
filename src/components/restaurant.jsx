@@ -2,53 +2,120 @@ import React, { Component } from 'react';
 import AddReview from './addReview';
 import { map } from './map';
 
-let newReviews = [],
-  reviews = [],
-  place = {};
-
 class Restaurant extends Component {
   state = {
-    place: {},
-    rating: 0,
+    selectedPlace: this.props.restaurants.find(
+      (e) => e.place_id === this.props.selectedRestaurantID
+    ),
+    onlyNewData: [],
     addReview: false,
     disabled: false,
   };
 
-  componentDidMount() {
-    reviews = [];
-    place = {};
-    if (
-      this.props.restaurants.find(
-        (e) =>
-          e.place_id === this.props.selectedRestaurantID && e.from === 'google'
-      )
-    ) {
+  componentDidMount = async () => {
+    // console.log(
+    //   this.props.restaurants.find(
+    //     (e) => e.place_id === this.props.selectedRestaurantID
+    //   )
+    // );
+    // get user added data
+    if (this.props.onlyNewData) {
+      let a = this.props.onlyNewData.find(
+        (e) => e.place_id === this.props.selectedRestaurantID
+      );
+      if (a) {
+        await this.setState({ onlyNewData: a });
+      }
+    }
+
+    let selectedPlace = this.state.selectedPlace;
+
+    // old + new reviews from google places
+    if (selectedPlace.from === 'google') {
       const request = {
         placeId: this.props.selectedRestaurantID,
-        fields: [
-          'name',
-          'review',
-          'user_ratings_total',
-          'rating',
-          'formatted_address',
-        ],
+        fields: ['review'],
       };
       let service = new window.google.maps.places.PlacesService(map);
       service.getDetails(request, this.getReviews);
-    } else {
-      place = this.props.restaurants.find(
+    }
+
+    // old + new reviews from JSON and new restaurants
+    if (selectedPlace.from !== 'google') {
+      const pulledDetails = selectedPlace.reviews ? selectedPlace : {};
+      const newData = this.state.onlyNewData.reviews
+        ? this.state.onlyNewData.reviews
+        : [];
+      this.finalData(pulledDetails, newData);
+    }
+  };
+
+  componentDidUpdate = async (prevProps) => {
+    if (prevProps.onlyNewData !== this.props.onlyNewData) {
+      let a = this.props.onlyNewData.find(
         (e) => e.place_id === this.props.selectedRestaurantID
       );
-      this.setReviews();
+      if (a) {
+        await this.setState({ onlyNewData: a });
+      }
     }
-  }
+
+    // update list ako je from google places
+    if (
+      prevProps.onlyNewData !== this.props.onlyNewData &&
+      this.state.selectedPlace.from === 'google'
+    ) {
+      const request = {
+        placeId: this.props.selectedRestaurantID,
+        fields: ['review'],
+      };
+      let service = new window.google.maps.places.PlacesService(map);
+      service.getDetails(request, this.getReviews);
+    }
+
+    // ipdate list ako je iz JSON ili new restaurant
+    if (
+      prevProps.onlyNewData !== this.props.onlyNewData &&
+      this.state.selectedPlace.from !== 'google'
+    ) {
+      const pulledDetails = this.state.selectedPlace.reviews
+        ? this.state.selectedPlace
+        : {};
+      let newData = this.state.onlyNewData.reviews
+        ? [
+            this.state.onlyNewData.reviews[
+              this.state.onlyNewData.reviews.length - 1
+            ],
+          ]
+        : [];
+      this.finalData(pulledDetails, newData);
+    }
+  };
 
   // ########## getting reviews from google ##########
   getReviews = (results, status) => {
     if (status === window.google.maps.places.PlacesServiceStatus.OK) {
-      place = JSON.parse(JSON.stringify(results));
-      this.setReviews();
+      const pulledDetails = JSON.parse(JSON.stringify(results));
+      const newData = this.state.onlyNewData.reviews
+        ? this.state.onlyNewData.reviews
+        : [];
+      this.finalData(pulledDetails, newData);
     }
+  };
+
+  finalData = (pulledDetails, newData) => {
+    console.log(
+      this.props.restaurants.find(
+        (e) => e.place_id === this.props.selectedRestaurantID
+      ).user_ratings_total
+    );
+    const oldData = pulledDetails.reviews ? pulledDetails.reviews : [];
+    this.setState({
+      selectedPlace: {
+        ...this.state.selectedPlace,
+        reviews: [...newData, ...oldData],
+      },
+    });
   };
 
   // ########## add new review ##########
@@ -60,67 +127,9 @@ class Restaurant extends Component {
     if (e && e.author_name) {
       let newReview = e;
       newReview.place_id = this.props.selectedRestaurantID;
-      newReviews.push(newReview);
-      this.setReviews();
+      this.props.handleAddReview(newReview);
     }
-  };
-
-  setReviews = () => {
-    let newRatings = 0;
-    place.reviews ? (reviews = place.reviews) : (reviews = []);
-
-    // ########## avoiding faulty ##########
-    if (isNaN(place.user_ratings_total)) {
-      place.rating = 0;
-      place.user_ratings_total = 0;
-    }
-
-    // ########## filter through new ##########
-    const filteredReviews = newReviews.filter(
-      (e) => e.place_id === this.props.selectedRestaurantID
-    );
-
-    // ########## calculate ratings with new ##########
-    if (filteredReviews.length > 0) {
-      for (let i = 0; i < filteredReviews.length; i++) {
-        newRatings = newRatings + filteredReviews[i].rating;
-      }
-    }
-
-    // ########## round on 1 decimal ##########
-    newRatings =
-      filteredReviews.length > 0
-        ? Math.round(
-            ((newRatings + place.rating) /
-              (filteredReviews.length + (place.rating === 0 ? 0 : 1))) *
-              10
-          ) / 10
-        : place.rating;
-
-    // ########## calculating relative time description ##########
-    filteredReviews.map((e, indx) => {
-      if (!e.relative_time_description) {
-        const time = filteredReviews[indx].time;
-        const current = new Date().getTime();
-        filteredReviews[indx] = {
-          ...filteredReviews[indx],
-          relative_time_description: this.getHumanTime(current - time),
-        };
-      }
-      return null;
-    });
-
-    // ########## set state ##########
-    this.setState({
-      place: place,
-      reviews: [...filteredReviews, ...reviews],
-    });
-
-    // ########## lift up ratings ##########
-    this.props.updateRatings(
-      newRatings,
-      place.user_ratings_total + filteredReviews.length
-    );
+    // this.setReviews();
   };
 
   getHumanTime = (timestamp) => {
@@ -160,24 +169,21 @@ class Restaurant extends Component {
     return (
       <React.Fragment>
         <div className="text-shadow bg-light display-4 mb-3 p-2 text-break rounded shadow">
-          {this.state.place.name}
+          {this.state.selectedPlace.name}
         </div>
 
         <div className="row">
           <div className="col minHeight pl-4">
-            <div className="mb-2">
-              {this.state.place.formatted_address}
-              {this.state.place.vicinity}
-            </div>
+            <div className="mb-2">{this.state.selectedPlace.vicinity}</div>
             <div className="mb-3">
-              {this.props.newRatings.user_ratings_total !== 0 && (
+              {this.state.selectedPlace.user_ratings_total !== 0 && (
                 <div className="text-muted">
-                  {this.props.newRatings.rating}
+                  {this.state.selectedPlace.rating}
                   <span className="text-danger">&#9733;</span> (
-                  {this.props.newRatings.user_ratings_total} total)
+                  {this.state.selectedPlace.user_ratings_total} total)
                 </div>
               )}
-              {this.props.newRatings.user_ratings_total === 0 && (
+              {this.state.selectedPlace.user_ratings_total === 0 && (
                 <div className="text-muted">No Ratings or Reviews</div>
               )}
             </div>
@@ -198,8 +204,8 @@ class Restaurant extends Component {
           <AddReview handleAddReview={this.handleAddReview} />
         )}
 
-        {this.state.reviews &&
-          this.state.reviews.map((review) => (
+        {this.state.selectedPlace.reviews &&
+          this.state.selectedPlace.reviews.map((review) => (
             <div className="card mb-3 shadow" key={Math.random() * 1000}>
               <div className="card-body pl-1">
                 <div className="pl-3 card-subtitle mb-2">

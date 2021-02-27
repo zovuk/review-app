@@ -33,12 +33,18 @@ class List extends Component {
             e.geometry.location.lat < newBounds.getNorthEast().lat() &&
             e.geometry.location.lat > newBounds.getSouthWest().lat()
         );
+
         filteredList.map(
           (e) => (e.label = labels[labelIndex++ % labels.length])
         );
 
         // ########## creating list for rendering ##########
         listRight = [...filteredList];
+        // listRight = listRight.filter(
+        //   (e) =>
+        //     (isNaN(e.rating) ? 0 : e.rating - 0.9) <= this.props.showRange[1] &&
+        //     (isNaN(e.rating) ? 0 : e.rating) >= this.props.showRange[0]
+        // );
         listRight.map((e, indx) => {
           if (newRatings.find((r) => e.place_id === r.place_id)) {
             listRight[indx] = {
@@ -71,6 +77,11 @@ class List extends Component {
   componentDidUpdate(a) {
     // ########## Filter list again when bounds changed ##########
     if (this.props.newBounds !== a.newBounds) {
+      this.filterIt(this.props.newBounds);
+    }
+
+    // ########## Filter ranges ##########
+    if (a.showRange !== this.props.showRange) {
       this.filterIt(this.props.newBounds);
     }
   }
