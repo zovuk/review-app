@@ -39,7 +39,14 @@ class App extends Component {
     // prvi unos
     if (!this.state.onlyNewData) {
       this.setState({
-        onlyNewData: [{ place_id: e.place_id, reviews: [e] }],
+        onlyNewData: [
+          {
+            place_id: e.place_id,
+            reviews: [e],
+            user_ratings_total: 1,
+            rating: e.rating,
+          },
+        ],
       });
     } else {
       const saved = this.state.onlyNewData.find(
@@ -51,9 +58,16 @@ class App extends Component {
           .map((el) => el.place_id)
           .indexOf(this.state.selectedRestaurantID);
         let tempNewData = [...this.state.onlyNewData];
-        tempNewData[indx].reviews
-          ? (tempNewData[indx].reviews = [...tempNewData[indx].reviews, e])
-          : (tempNewData[indx].reviews = [e]);
+        if (tempNewData[indx].reviews) {
+          tempNewData[indx].reviews = [...tempNewData[indx].reviews, e];
+          tempNewData[indx].user_ratings_total =
+            tempNewData[indx].user_ratings_total + 1;
+          tempNewData[indx].rating = tempNewData[indx].rating + e.rating;
+        } else {
+          tempNewData[indx].reviews = [e];
+          tempNewData[indx].user_ratings_total = 1;
+          tempNewData[indx].rating = e.rating;
+        }
         this.setState({
           onlyNewData: tempNewData,
         });
@@ -63,7 +77,12 @@ class App extends Component {
         this.setState({
           onlyNewData: [
             ...this.state.onlyNewData,
-            { place_id: e.place_id, reviews: [e] },
+            {
+              place_id: e.place_id,
+              reviews: [e],
+              user_ratings_total: 1,
+              rating: e.rating,
+            },
           ],
         });
       }
@@ -225,7 +244,9 @@ class App extends Component {
             {!this.state.searchRestaurants && (
               <Restaurant
                 selectedRestaurantID={this.state.selectedRestaurantID}
-                restaurants={this.state.restaurants}
+                restaurant={this.state.restaurants.find(
+                  (e) => e.place_id === this.state.selectedRestaurantID
+                )}
                 updateRatings={this.updateRatings}
                 newRatings={this.state.newRatings}
                 handleAddReview={this.handleAddReview}

@@ -4,9 +4,7 @@ import { map } from './map';
 
 class Restaurant extends Component {
   state = {
-    selectedPlace: this.props.restaurants.find(
-      (e) => e.place_id === this.props.selectedRestaurantID
-    ),
+    selectedPlace: this.props.restaurant,
     onlyNewData: [],
     addReview: false,
     disabled: false,
@@ -104,16 +102,35 @@ class Restaurant extends Component {
   };
 
   finalData = (pulledDetails, newData) => {
-    console.log(
-      this.props.restaurants.find(
-        (e) => e.place_id === this.props.selectedRestaurantID
-      ).user_ratings_total
-    );
+    // Total ratings from new reviews
+    const newTotal = !isNaN(this.state.onlyNewData.user_ratings_total)
+      ? this.state.onlyNewData.user_ratings_total
+      : 0;
+    const newRating = !isNaN(this.state.onlyNewData.rating)
+      ? this.state.onlyNewData.rating
+      : 0;
+
+    // Total ratings from old reviews
+    const oldTotal = !isNaN(this.props.restaurant.user_ratings_total)
+      ? this.props.restaurant.user_ratings_total
+      : 0;
+    const oldRating = !isNaN(this.props.restaurant.rating)
+      ? this.props.restaurant.rating
+      : 0;
+    console.log(newTotal, oldTotal, newRating, oldRating);
+    const finalRating =
+      Math.round(
+        (oldRating + newRating
+          ? (oldRating + newRating) / (oldRating ? newTotal + 1 : newTotal)
+          : 0) * 10
+      ) / 10;
     const oldData = pulledDetails.reviews ? pulledDetails.reviews : [];
     this.setState({
       selectedPlace: {
         ...this.state.selectedPlace,
         reviews: [...newData, ...oldData],
+        user_ratings_total: oldTotal + newTotal,
+        rating: finalRating,
       },
     });
   };
@@ -129,7 +146,6 @@ class Restaurant extends Component {
       newReview.place_id = this.props.selectedRestaurantID;
       this.props.handleAddReview(newReview);
     }
-    // this.setReviews();
   };
 
   getHumanTime = (timestamp) => {
@@ -176,14 +192,15 @@ class Restaurant extends Component {
           <div className="col minHeight pl-4">
             <div className="mb-2">{this.state.selectedPlace.vicinity}</div>
             <div className="mb-3">
-              {this.state.selectedPlace.user_ratings_total !== 0 && (
-                <div className="text-muted">
-                  {this.state.selectedPlace.rating}
-                  <span className="text-danger">&#9733;</span> (
-                  {this.state.selectedPlace.user_ratings_total} total)
-                </div>
-              )}
-              {this.state.selectedPlace.user_ratings_total === 0 && (
+              {!isNaN(this.state.selectedPlace.user_ratings_total) &&
+                this.state.selectedPlace.user_ratings_total > 0 && (
+                  <div className="text-muted">
+                    {this.state.selectedPlace.rating}
+                    <span className="text-danger">&#9733;</span> (
+                    {this.state.selectedPlace.user_ratings_total} total)
+                  </div>
+                )}
+              {!this.state.selectedPlace.user_ratings_total && (
                 <div className="text-muted">No Ratings or Reviews</div>
               )}
             </div>
