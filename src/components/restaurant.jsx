@@ -65,7 +65,7 @@ class Restaurant extends Component {
       service.getDetails(request, this.getReviews);
     }
 
-    // ipdate list ako je iz JSON ili new restaurant
+    // update list ako je iz JSON ili new restaurant
     if (
       prevProps.onlyNewData !== this.props.onlyNewData &&
       this.state.selectedPlace.from !== 'google'
@@ -111,7 +111,6 @@ class Restaurant extends Component {
     const oldRating = !isNaN(this.props.restaurant.rating)
       ? this.props.restaurant.rating
       : 0;
-    // console.log(newTotal, oldTotal, newRating, oldRating);
     const finalRating =
       Math.round(
         (oldRating + newRating

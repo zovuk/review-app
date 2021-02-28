@@ -26,11 +26,6 @@ class App extends Component {
       rating: 0,
       user_ratings_total: 0,
     },
-    // newRatings: {
-    //   place_id: '',
-    //   rating: -1,
-    //   user_ratings_total: -1,
-    // },
     handleRange: [0, 5],
   };
 
@@ -154,16 +149,6 @@ class App extends Component {
     });
   };
 
-  // updateRatings = (a, b) => {
-  //   this.setState({
-  //     newRatings: {
-  //       place_id: this.state.selectedRestaurantID,
-  //       rating: a,
-  //       user_ratings_total: b,
-  //     },
-  //   });
-  // };
-
   handleRange = (e) => {
     this.setState({ handleRange: e });
   };
@@ -235,7 +220,6 @@ class App extends Component {
                   handleClick={this.handleClick}
                   newPlace={this.state.newPlace}
                   selectedRestaurantID={this.state.selectedRestaurantID}
-                  // newRatings={this.state.newRatings}
                   showRange={this.state.handleRange}
                   onlyNewData={this.state.onlyNewData}
                 />
@@ -248,8 +232,6 @@ class App extends Component {
                 restaurant={this.state.restaurants.find(
                   (e) => e.place_id === this.state.selectedRestaurantID
                 )}
-                // updateRatings={this.updateRatings}
-                // newRatings={this.state.newRatings}
                 handleAddReview={this.handleAddReview}
                 onlyNewData={this.state.onlyNewData}
               />

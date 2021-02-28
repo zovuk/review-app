@@ -4,10 +4,8 @@ import { map } from './map';
 
 const list = JSON.stringify(LocalList);
 let defaultlList = JSON.parse(list);
-// let listRight = [];
 const labels = 'ABCDEFGHIJKLMNOPQRSTUVWXYZÄÖß123456789';
 let labelIndex = 0;
-// let newRatings = [];
 class List extends Component {
   state = { listItemBg: 'bg-light' };
 
@@ -23,7 +21,14 @@ class List extends Component {
       },
       (results) => {
         restaurants = JSON.parse(JSON.stringify(results));
-        restaurants.map((e) => (e.from = 'google'));
+        restaurants.map((e) => {
+          e.from = 'google';
+          if (!e.rating) {
+            e.rating = 0;
+            e.user_ratings_total = 0;
+          }
+          return null;
+        });
 
         // ########## Filter only reataurants inside boundaries ##########
         let filteredList = [...defaultlList, ...restaurants].filter(
@@ -31,68 +36,15 @@ class List extends Component {
             e.geometry.location.lng < newBounds.getNorthEast().lng() &&
             e.geometry.location.lng > newBounds.getSouthWest().lng() &&
             e.geometry.location.lat < newBounds.getNorthEast().lat() &&
-            e.geometry.location.lat > newBounds.getSouthWest().lat()
+            e.geometry.location.lat > newBounds.getSouthWest().lat() &&
+            this.calcRating(e) >= this.props.showRange[0] &&
+            Math.floor(this.calcRating(e)) < this.props.showRange[1] + 0.9
         );
-        console.log(this.props.showRange[0]);
-        // filteredList.map((e) => {
-        //   let onlyNewData =
-        //     this.props.onlyNewData &&
-        //     this.props.onlyNewData.find((n) => n.place_id === e.place_id)
-        //       ? this.props.onlyNewData.find((n) => n.place_id === e.place_id)
-        //       : 0;
-        //   console.log(
-        //     onlyNewData.rating
-        //       ? (e.rating + onlyNewData.rating) /
-        //           (e.rating
-        //             ? onlyNewData.user_ratings_total + 1
-        //             : onlyNewData.user_ratings_total) +
-        //           ' - ' +
-        //           e.name
-        //       : e.rating
-        //       ? e.rating + ' - ' + e.name
-        //       : 0
-        //   );
-        // });
 
         filteredList.map(
           (e) => (e.label = labels[labelIndex++ % labels.length])
         );
 
-        // Total ratings from new reviews-------------------------------------------------
-        //  { const newTotal = !isNaN(this.state.onlyNewData.user_ratings_total)
-        //   ? this.state.onlyNewData.user_ratings_total
-        //   : 0;
-        // const newRating = !isNaN(this.state.onlyNewData.rating)
-        //   ? this.state.onlyNewData.rating
-        //   : 0;
-
-        // // Total ratings from old reviews
-        // const oldTotal = !isNaN(this.props.restaurant.user_ratings_total)
-        //   ? this.props.restaurant.user_ratings_total
-        //   : 0;
-        // const oldRating = !isNaN(this.props.restaurant.rating)
-        //   ? this.props.restaurant.rating
-        //   : 0;
-        // console.log(newTotal, oldTotal, newRating, oldRating);
-        // const finalRating =
-        //   Math.round(
-        //     (oldRating + newRating
-        //       ? (oldRating + newRating) / (oldRating ? newTotal + 1 : newTotal)
-        //       : 0) * 10
-        //   ) / 10;}
-        // -----------------------------------------------------------------------------------------
-
-        // ########## creating list for rendering ##########
-        // listRight = [...filteredList];
-        // listRight.map((e, indx) => {
-        //   if (newRatings.find((r) => e.place_id === r.place_id)) {
-        //     listRight[indx] = {
-        //       ...e,
-        //       ...newRatings.find((r) => e.place_id === r.place_id),
-        //     };
-        //   }
-        //   return null;
-        // });
         labelIndex = 0;
         this.props.filteredList(filteredList);
       }
@@ -100,9 +52,6 @@ class List extends Component {
   };
 
   componentDidMount() {
-    // ########## saving every new rating score ##########
-    // newRatings.unshift(this.props.newRatings);
-
     // ########## add new restaurant on default local list ##########
     if (
       !defaultlList.find((e) => e.place_id === this.props.newPlace.place_id) &&
@@ -153,18 +102,6 @@ class List extends Component {
       this.props.onlyNewData.find((n) => n.place_id === e.place_id)
         ? this.props.onlyNewData.find((n) => n.place_id === e.place_id)
         : 0;
-    // console.log(
-    //   onlyNewData.rating
-    //     ? (e.rating + onlyNewData.rating) /
-    //         (e.rating
-    //           ? onlyNewData.user_ratings_total + 1
-    //           : onlyNewData.user_ratings_total) +
-    //         ' - ' +
-    //         e.name
-    //     : e.rating
-    //     ? e.rating + ' - ' + e.name
-    //     : 0
-    // );
     return (
       Math.round(
         (onlyNewData.rating
@@ -175,6 +112,21 @@ class List extends Component {
           : e.rating
           ? e.rating
           : 0) * 10
+      ) / 10
+    );
+  };
+
+  calcTotal = (e) => {
+    let onlyNewData =
+      this.props.onlyNewData &&
+      this.props.onlyNewData.find((n) => n.place_id === e.place_id)
+        ? this.props.onlyNewData.find((n) => n.place_id === e.place_id)
+        : 0;
+    return (
+      Math.round(
+        (!isNaN(onlyNewData.user_ratings_total)
+          ? e.user_ratings_total + onlyNewData.user_ratings_total
+          : e.user_ratings_total) * 10
       ) / 10
     );
   };
@@ -207,15 +159,14 @@ class List extends Component {
                 </div>
               </div>
               <div className="notClickable pl-3">
-                {e.user_ratings_total > 0 && (
+                {this.calcTotal(e) > 0 && (
                   <div className="notClickable text-muted">
-                    {/* {e.rating} */}
                     {this.calcRating(e)}
                     <span className="text-danger">&#9733;</span> (
-                    {e.user_ratings_total} total)
+                    {this.calcTotal(e)} total)
                   </div>
                 )}
-                {!e.rating && (
+                {!this.calcTotal(e) && (
                   <div className="notClickable text-secondary">No Ratings</div>
                 )}
               </div>
