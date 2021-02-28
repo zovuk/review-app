@@ -4,10 +4,10 @@ import { map } from './map';
 
 const list = JSON.stringify(LocalList);
 let defaultlList = JSON.parse(list);
-let listRight = [];
+// let listRight = [];
 const labels = 'ABCDEFGHIJKLMNOPQRSTUVWXYZÄÖß123456789';
 let labelIndex = 0;
-let newRatings = [];
+// let newRatings = [];
 class List extends Component {
   state = { listItemBg: 'bg-light' };
 
@@ -33,27 +33,66 @@ class List extends Component {
             e.geometry.location.lat < newBounds.getNorthEast().lat() &&
             e.geometry.location.lat > newBounds.getSouthWest().lat()
         );
+        console.log(this.props.showRange[0]);
+        // filteredList.map((e) => {
+        //   let onlyNewData =
+        //     this.props.onlyNewData &&
+        //     this.props.onlyNewData.find((n) => n.place_id === e.place_id)
+        //       ? this.props.onlyNewData.find((n) => n.place_id === e.place_id)
+        //       : 0;
+        //   console.log(
+        //     onlyNewData.rating
+        //       ? (e.rating + onlyNewData.rating) /
+        //           (e.rating
+        //             ? onlyNewData.user_ratings_total + 1
+        //             : onlyNewData.user_ratings_total) +
+        //           ' - ' +
+        //           e.name
+        //       : e.rating
+        //       ? e.rating + ' - ' + e.name
+        //       : 0
+        //   );
+        // });
 
         filteredList.map(
           (e) => (e.label = labels[labelIndex++ % labels.length])
         );
 
+        // Total ratings from new reviews-------------------------------------------------
+        //  { const newTotal = !isNaN(this.state.onlyNewData.user_ratings_total)
+        //   ? this.state.onlyNewData.user_ratings_total
+        //   : 0;
+        // const newRating = !isNaN(this.state.onlyNewData.rating)
+        //   ? this.state.onlyNewData.rating
+        //   : 0;
+
+        // // Total ratings from old reviews
+        // const oldTotal = !isNaN(this.props.restaurant.user_ratings_total)
+        //   ? this.props.restaurant.user_ratings_total
+        //   : 0;
+        // const oldRating = !isNaN(this.props.restaurant.rating)
+        //   ? this.props.restaurant.rating
+        //   : 0;
+        // console.log(newTotal, oldTotal, newRating, oldRating);
+        // const finalRating =
+        //   Math.round(
+        //     (oldRating + newRating
+        //       ? (oldRating + newRating) / (oldRating ? newTotal + 1 : newTotal)
+        //       : 0) * 10
+        //   ) / 10;}
+        // -----------------------------------------------------------------------------------------
+
         // ########## creating list for rendering ##########
-        listRight = [...filteredList];
-        // listRight = listRight.filter(
-        //   (e) =>
-        //     (isNaN(e.rating) ? 0 : e.rating - 0.9) <= this.props.showRange[1] &&
-        //     (isNaN(e.rating) ? 0 : e.rating) >= this.props.showRange[0]
-        // );
-        listRight.map((e, indx) => {
-          if (newRatings.find((r) => e.place_id === r.place_id)) {
-            listRight[indx] = {
-              ...e,
-              ...newRatings.find((r) => e.place_id === r.place_id),
-            };
-          }
-          return null;
-        });
+        // listRight = [...filteredList];
+        // listRight.map((e, indx) => {
+        //   if (newRatings.find((r) => e.place_id === r.place_id)) {
+        //     listRight[indx] = {
+        //       ...e,
+        //       ...newRatings.find((r) => e.place_id === r.place_id),
+        //     };
+        //   }
+        //   return null;
+        // });
         labelIndex = 0;
         this.props.filteredList(filteredList);
       }
@@ -62,7 +101,7 @@ class List extends Component {
 
   componentDidMount() {
     // ########## saving every new rating score ##########
-    newRatings.unshift(this.props.newRatings);
+    // newRatings.unshift(this.props.newRatings);
 
     // ########## add new restaurant on default local list ##########
     if (
@@ -108,11 +147,43 @@ class List extends Component {
     item.classList.add('bg-light');
   };
 
+  calcRating = (e) => {
+    let onlyNewData =
+      this.props.onlyNewData &&
+      this.props.onlyNewData.find((n) => n.place_id === e.place_id)
+        ? this.props.onlyNewData.find((n) => n.place_id === e.place_id)
+        : 0;
+    // console.log(
+    //   onlyNewData.rating
+    //     ? (e.rating + onlyNewData.rating) /
+    //         (e.rating
+    //           ? onlyNewData.user_ratings_total + 1
+    //           : onlyNewData.user_ratings_total) +
+    //         ' - ' +
+    //         e.name
+    //     : e.rating
+    //     ? e.rating + ' - ' + e.name
+    //     : 0
+    // );
+    return (
+      Math.round(
+        (onlyNewData.rating
+          ? (e.rating + onlyNewData.rating) /
+            (e.rating
+              ? onlyNewData.user_ratings_total + 1
+              : onlyNewData.user_ratings_total)
+          : e.rating
+          ? e.rating
+          : 0) * 10
+      ) / 10
+    );
+  };
+
   render() {
     return (
       <div id="list">
-        {listRight &&
-          listRight.map((e) => (
+        {this.props.restaurants &&
+          this.props.restaurants.map((e) => (
             <div
               onMouseOver={(e) => {
                 this.props.handleMouseOver(e);
@@ -138,7 +209,8 @@ class List extends Component {
               <div className="notClickable pl-3">
                 {e.user_ratings_total > 0 && (
                   <div className="notClickable text-muted">
-                    {e.rating}
+                    {/* {e.rating} */}
+                    {this.calcRating(e)}
                     <span className="text-danger">&#9733;</span> (
                     {e.user_ratings_total} total)
                   </div>

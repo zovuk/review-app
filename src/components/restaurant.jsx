@@ -11,12 +11,6 @@ class Restaurant extends Component {
   };
 
   componentDidMount = async () => {
-    // console.log(
-    //   this.props.restaurants.find(
-    //     (e) => e.place_id === this.props.selectedRestaurantID
-    //   )
-    // );
-    // get user added data
     if (this.props.onlyNewData) {
       let a = this.props.onlyNewData.find(
         (e) => e.place_id === this.props.selectedRestaurantID
@@ -117,13 +111,15 @@ class Restaurant extends Component {
     const oldRating = !isNaN(this.props.restaurant.rating)
       ? this.props.restaurant.rating
       : 0;
-    console.log(newTotal, oldTotal, newRating, oldRating);
+    // console.log(newTotal, oldTotal, newRating, oldRating);
     const finalRating =
       Math.round(
         (oldRating + newRating
           ? (oldRating + newRating) / (oldRating ? newTotal + 1 : newTotal)
           : 0) * 10
       ) / 10;
+
+    // Combine reviews
     const oldData = pulledDetails.reviews ? pulledDetails.reviews : [];
     this.setState({
       selectedPlace: {
