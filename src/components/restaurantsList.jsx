@@ -23,15 +23,13 @@ class List extends Component {
 
   componentDidUpdate(a) {
     if (
-      a.restaurants !== this.props.restaurants &&
       this.props.restaurants.length === 0 &&
       document.getElementById('listParent').classList.contains('p-3')
     ) {
       document.getElementById('listParent').classList.remove('p-3');
     }
     if (
-      a.restaurants !== this.props.restaurants &&
-      a.restaurants.length === 0 &&
+      this.props.restaurants.length !== 0 &&
       !document.getElementById('listParent').classList.contains('p-3')
     ) {
       document.getElementById('listParent').classList.add('p-3');

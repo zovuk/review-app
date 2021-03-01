@@ -60,6 +60,15 @@ class Map extends Component {
           ).geometry.location
         );
         map.setZoom(18);
+        markers.map((n) =>
+          n.id !== this.props.selectedRestaurantID
+            ? n.setMap(null)
+            : n.setIcon({
+                url: `${options.restaurantIcon.url}!|33338B|FFF`,
+                scaledSize: new window.google.maps.Size(45, 45),
+                anchor: new window.google.maps.Point(13, 44),
+              })
+        );
       } else {
         map.setCenter(this.state.savedCenter);
         map.setZoom(this.state.zoom);

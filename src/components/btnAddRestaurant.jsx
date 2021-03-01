@@ -5,6 +5,8 @@ class NewRestaurantBtn extends Component {
     return (
       <div>
         <button
+          data-toggle="tooltip"
+          title="Add New Restaurant!"
           onClick={() => {
             this.props.handleClick();
           }}
