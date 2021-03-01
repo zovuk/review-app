@@ -227,7 +227,10 @@ class Restaurant extends Component {
                       <p>
                         {review.rating}
                         <span className="text-danger">&#9733; ... </span>
-                        {review.relative_time_description}
+                        {review.relative_time_description === 'sada' &&
+                          this.getHumanTime(new Date().getTime() - review.time)}
+                        {review.relative_time_description !== 'sada' &&
+                          review.relative_time_description}
                       </p>
                       <p>{review.text}</p>
                     </div>
