@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import AddReview from './addReview';
 import { map } from './map';
+import Stars from './stars';
 
 class Restaurant extends Component {
   state = {
@@ -190,9 +191,11 @@ class Restaurant extends Component {
               {!isNaN(this.state.selectedPlace.user_ratings_total) &&
                 this.state.selectedPlace.user_ratings_total > 0 && (
                   <div className="text-muted">
-                    {this.state.selectedPlace.rating}
-                    <span className="text-danger">&#9733;</span> (
-                    {this.state.selectedPlace.user_ratings_total} total)
+                    {this.state.selectedPlace.rating}{' '}
+                    <Stars
+                      rating={Math.floor(this.state.selectedPlace.rating)}
+                    />{' '}
+                    ({this.state.selectedPlace.user_ratings_total} total)
                   </div>
                 )}
               {!this.state.selectedPlace.user_ratings_total && (
@@ -225,8 +228,9 @@ class Restaurant extends Component {
                     <div>
                       <h5 className="card-title pb-0">{review.author_name}</h5>
                       <p>
-                        {review.rating}
-                        <span className="text-danger">&#9733; ... </span>
+                        {review.rating}{' '}
+                        {/* <span className="text-danger">&#9733; ... </span> */}
+                        <Stars rating={review.rating} />{' '}
                         {review.relative_time_description === 'sada' &&
                           this.getHumanTime(new Date().getTime() - review.time)}
                         {review.relative_time_description !== 'sada' &&
