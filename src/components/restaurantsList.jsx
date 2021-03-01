@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import LocalList from '../data/sample.json';
 import { map } from './map';
+import Stars from './stars';
 
 const list = JSON.stringify(LocalList);
 let defaultlList = JSON.parse(list);
@@ -8,6 +9,49 @@ const labels = 'ABCDEFGHIJKLMNOPQRSTUVWXYZÄÖß123456789';
 let labelIndex = 0;
 class List extends Component {
   state = { listItemBg: 'bg-light' };
+
+  componentDidMount() {
+    // ########## add new restaurant on default local list ##########
+    if (
+      !defaultlList.find((e) => e.place_id === this.props.newPlace.place_id) &&
+      this.props.newPlace.place_id !== ''
+    ) {
+      defaultlList.push(this.props.newPlace);
+      this.filterIt(this.props.newBounds);
+    }
+  }
+
+  componentDidUpdate(a) {
+    if (
+      a.restaurants !== this.props.restaurants &&
+      this.props.restaurants.length === 0 &&
+      document.getElementById('listParent').classList.contains('p-3')
+    ) {
+      document.getElementById('listParent').classList.remove('p-3');
+    }
+    if (
+      a.restaurants !== this.props.restaurants &&
+      a.restaurants.length === 0 &&
+      !document.getElementById('listParent').classList.contains('p-3')
+    ) {
+      document.getElementById('listParent').classList.add('p-3');
+    }
+    // ########## Filter list again when bounds changed ##########
+    if (this.props.newBounds !== a.newBounds) {
+      this.filterIt(this.props.newBounds);
+    }
+
+    // ########## Filter ranges ##########
+    if (a.showRange !== this.props.showRange) {
+      this.filterIt(this.props.newBounds);
+    }
+  }
+
+  componentWillUnmount() {
+    if (this.props.toggleNewPlace) {
+      this.props.filteredList([]);
+    }
+  }
 
   // ########## Filter-out all non-visible restaurants ##########
   filterIt = (newBounds) => {
@@ -51,39 +95,9 @@ class List extends Component {
     );
   };
 
-  componentDidMount() {
-    // ########## add new restaurant on default local list ##########
-    if (
-      !defaultlList.find((e) => e.place_id === this.props.newPlace.place_id) &&
-      this.props.newPlace.place_id !== ''
-    ) {
-      defaultlList.push(this.props.newPlace);
-      this.filterIt(this.props.newBounds);
-    }
-  }
-
-  componentDidUpdate(a) {
-    // ########## Filter list again when bounds changed ##########
-    if (this.props.newBounds !== a.newBounds) {
-      this.filterIt(this.props.newBounds);
-    }
-
-    // ########## Filter ranges ##########
-    if (a.showRange !== this.props.showRange) {
-      this.filterIt(this.props.newBounds);
-    }
-  }
-
-  componentWillUnmount() {
-    if (this.props.toggleNewPlace) {
-      this.props.filteredList([]);
-    }
-  }
-
   // ########## When pointer hover over list Item ##########
   handleMouseOver = (e) => {
     const item = document.getElementById(e.target.id);
-
     item.classList.remove('bg-light');
     item.classList.add('bg-warning', 'border-danger', 'shadow');
   };
@@ -133,45 +147,52 @@ class List extends Component {
 
   render() {
     return (
-      <div id="list">
-        {this.props.restaurants &&
-          this.props.restaurants.map((e) => (
-            <div
-              onMouseOver={(e) => {
-                this.props.handleMouseOver(e);
-                this.handleMouseOver(e);
-              }}
-              onMouseOut={(e) => {
-                this.props.handleMouseOut(e);
-                this.handleMouseOut(e);
-              }}
-              onClick={this.props.handleClick}
-              className={
-                'slowTransition card ml-2 mb-2 pt-1 pb-1 bg-light border-dark'
-              }
-              key={e.place_id}
-              id={e.place_id}
-            >
-              <div className="notClickable row">
-                <div className="notClickable label rounded-left">{e.label}</div>
-                <div className="notClickable col-10 h6 pl-1 text-truncate">
-                  "{e.name}"
+      <div id="listParent" className="scroll p-3 rounded shadow">
+        <div id="list">
+          {this.props.restaurants &&
+            this.props.restaurants.map((e) => (
+              <div
+                onMouseOver={(e) => {
+                  this.props.handleMouseOver(e);
+                  this.handleMouseOver(e);
+                }}
+                onMouseOut={(e) => {
+                  this.props.handleMouseOut(e);
+                  this.handleMouseOut(e);
+                }}
+                onClick={this.props.handleClick}
+                className={
+                  'slowTransition card ml-2 mb-2 pt-1 pb-1 bg-light border-dark'
+                }
+                key={e.place_id}
+                id={e.place_id}
+              >
+                <div className="notClickable row">
+                  <div className="notClickable label rounded-left">
+                    {e.label}
+                  </div>
+                  <div className="notClickable col-10 h6 pl-1 text-truncate">
+                    "{e.name}"
+                  </div>
+                </div>
+                <div className="notClickable pl-3">
+                  {this.calcTotal(e) > 0 && (
+                    <div className="notClickable text-muted">
+                      {this.calcRating(e)}{' '}
+                      <Stars rating={Math.floor(this.calcRating(e))} />
+                      {' ('}
+                      {this.calcTotal(e)} total)
+                    </div>
+                  )}
+                  {!this.calcTotal(e) && (
+                    <div className="notClickable text-secondary">
+                      No Ratings
+                    </div>
+                  )}
                 </div>
               </div>
-              <div className="notClickable pl-3">
-                {this.calcTotal(e) > 0 && (
-                  <div className="notClickable text-muted">
-                    {this.calcRating(e)}
-                    <span className="text-danger">&#9733;</span> (
-                    {this.calcTotal(e)} total)
-                  </div>
-                )}
-                {!this.calcTotal(e) && (
-                  <div className="notClickable text-secondary">No Ratings</div>
-                )}
-              </div>
-            </div>
-          ))}
+            ))}
+        </div>
       </div>
     );
   }

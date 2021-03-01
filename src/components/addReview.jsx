@@ -27,13 +27,6 @@ class AddReview extends Component {
 
   handleSubmit = async (e) => {
     e.preventDefault();
-    // this.props.handleAddReview({
-    //   author_name: 'Zoran',
-    //   rating: 2,
-    //   text: 'Ma sve oslo nekako u kurac prije samog fenomenalnog uspjeha',
-    //   time: new Date().getTime(),
-    //   relative_time_description: 'sada',
-    // });
     await this.setState({ time: new Date().getTime(), disabled: true });
     this.props.handleAddReview(this.state);
   };

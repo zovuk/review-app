@@ -2,10 +2,6 @@
 /* Functional styling;
  * These styles are required for noUiSlider to function.
  * You don't need to change these rules to apply your design.
- 
- */
-
-/* Handle stripes;
  */
 
 .noUi-handle:before {
@@ -13,9 +9,6 @@
   content: '★';
   display: block;
   position: absolute;
-  /* height: 14px; */
-  /* width: 0px; */
-  /* background: #dc3545; */
   left: 3px;
   top: -6px;
 }
@@ -163,17 +156,6 @@
 .noUi-active {
   box-shadow: inset 0 0 1px #fff, inset 0 1px 7px #ddd, 0 3px 6px -3px #bbb;
 }
-
-/* .noUi-handle:after {
-  content: '';
-  display: block;
-  position: absolute;
-  height: 14px;
-  width: 0px;
-  background: #e8e7e6;
-  left: 14px;
-  top: 6px;
-} */
 
 .noUi-vertical .noUi-handle:before,
 .noUi-vertical .noUi-handle:after {

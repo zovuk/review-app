@@ -209,21 +209,19 @@ class App extends Component {
               </div>
             )}
             {this.state.searchRestaurants && !this.state.newPlace.toggle && (
-              <div className="scroll p-3 rounded shadow">
-                <List
-                  toggleNewPlace={this.state.newPlace.toggle}
-                  newBounds={this.state.bounds}
-                  filteredList={this.filteredList}
-                  restaurants={this.state.restaurants}
-                  handleMouseOver={this.handleMouseOver}
-                  handleMouseOut={this.handleMouseOut}
-                  handleClick={this.handleClick}
-                  newPlace={this.state.newPlace}
-                  selectedRestaurantID={this.state.selectedRestaurantID}
-                  showRange={this.state.handleRange}
-                  onlyNewData={this.state.onlyNewData}
-                />
-              </div>
+              <List
+                toggleNewPlace={this.state.newPlace.toggle}
+                newBounds={this.state.bounds}
+                filteredList={this.filteredList}
+                restaurants={this.state.restaurants}
+                handleMouseOver={this.handleMouseOver}
+                handleMouseOut={this.handleMouseOut}
+                handleClick={this.handleClick}
+                newPlace={this.state.newPlace}
+                selectedRestaurantID={this.state.selectedRestaurantID}
+                showRange={this.state.handleRange}
+                onlyNewData={this.state.onlyNewData}
+              />
             )}
 
             {!this.state.searchRestaurants && (
