@@ -4,7 +4,7 @@ import '../styles/nouislider.css';
 
 export default class Range extends Component {
   componentDidMount() {
-    let slider = document.getElementById('slider');
+    let slider = document.getElementById('noUiSlider');
     noUiSlider.create(slider, {
       start: [this.props.showRange[0], this.props.showRange[1]],
       connect: true,
@@ -14,7 +14,8 @@ export default class Range extends Component {
         max: 5,
       },
     });
-    slider.addEventListener('click', () => {
+
+    slider.noUiSlider.on('change', (values) => {
       const getRange = slider.noUiSlider.get();
       this.props.handleRange([parseInt(getRange[0]), parseInt(getRange[1])]);
     });
@@ -23,7 +24,7 @@ export default class Range extends Component {
   render() {
     return (
       <React.Fragment>
-        <div id="slider" className="mb-2"></div>
+        <div id="noUiSlider" className="mb-2"></div>
         <div>
           Visible ratings range:{' '}
           <strong>
